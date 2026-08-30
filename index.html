@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Untitled</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- =====================================================
+     BOOT SCREEN
+===================================================== -->
+
+<div id="bootScreen">
+
+    <div class="boot-content">
+
+        <div class="boot-logo">
+            UNTITLED
+        </div>
+
+        <div class="boot-text">
+            North Ridge Investigation System
+        </div>
+
+        <div class="boot-progress">
+            <div id="bootProgress"></div>
+        </div>
+
+        <div
+            id="bootStatus"
+            class="boot-status"
+        >
+            Initializing...
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DESKTOP
+===================================================== -->
+
+<div id="desktop">
+
+    <!-- ===============================
+         DESKTOP ICONS
+    ================================ -->
+
+    <div
+        class="desktop-icon"
+        ondblclick="openWindow('explorer')"
+    >
+        <div class="icon-image">💻</div>
+        <span>My Computer</span>
+    </div>
+
+
+    <div
+        class="desktop-icon"
+        ondblclick="openWindow('notepad')"
+    >
+        <div class="icon-image">📝</div>
+        <span>Notes</span>
+    </div>
+
+
+    <div
+        class="desktop-icon"
+        ondblclick="openWindow('browser')"
+    >
+        <div class="icon-image">🌐</div>
+        <span>Internet</span>
+    </div>
+
+
+    <div
+        class="desktop-icon"
+        ondblclick="openWindow('mail')"
+    >
+        <div class="icon-image">✉️</div>
+        <span>Mail</span>
+    </div>
+
+
+    <div
+        class="desktop-icon"
+        ondblclick="openWindow('history')"
+    >
+        <div class="icon-image">🕘</div>
+        <span>Browser History</span>
+    </div>
+
+
+    <!-- =================================================
+         FILE EXPLORER
+    ================================================== -->
+
+    <div
+        id="explorer"
+        class="window explorer-window"
+        data-title="My Computer"
+    >
+
+        <div class="window-titlebar">
+
+            <span>
+                My Computer
+            </span>
+
+            <div class="window-buttons">
+
+                <button
+                    type="button"
+                    onclick="minimizeWindow('explorer')"
+                >
+                    _
+                </button>
+
+                <button
+                    type="button"
+                    onclick="maximizeWindow('explorer')"
+                >
+                    □
+                </button>
+
+                <button
+                    type="button"
+                    onclick="closeWindow('explorer')"
+                >
+                    X
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="window-content">
+
+            <div class="explorer-toolbar">
+
+                <button
+                    id="explorerBack"
+                    onclick="goBackExplorer()"
+                >
+                    ◀
+                </button>
+
+                <button
+                    id="explorerForward"
+                    onclick="goForwardExplorer()"
+                >
+                    ▶
+                </button>
+
+                <div
+                    id="explorerPath"
+                    class="path-display"
+                >
+                    C:\My Documents
+                </div>
+
+            </div>
+
+
+            <div
+                id="fileGrid"
+                class="file-grid"
+            ></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         BROWSER
+    ================================================== -->
+
+    <div
+        id="browser"
+        class="window browser-window"
+        data-title="Untitled Internet"
+    >
+
+        <div class="window-titlebar">
+
+            <span>
+                Untitled Internet
+            </span>
+
+            <div class="window-buttons">
+
+                <button
+                    type="button"
+                    onclick="minimizeWindow('browser')"
+                >
+                    _
+                </button>
+
+                <button
+                    type="button"
+                    onclick="maximizeWindow('browser')"
+                >
+                    □
+                </button>
+
+                <button
+                    type="button"
+                    onclick="closeWindow('browser')"
+                >
+                    X
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="browser-toolbar">
+
+            <button
+                type="button"
+                onclick="browserBack()"
+                title="Back"
+            >
+                ◀
+            </button>
+
+            <button
+                type="button"
+                onclick="browserForward()"
+                title="Forward"
+            >
+                ▶
+            </button>
+
+            <button
+                type="button"
+                onclick="browserHome()"
+                title="Home"
+            >
+                🏠
+            </button>
+
+            <input
+                id="addressBar"
+                type="text"
+                value="http://home.untitled"
+                autocomplete="off"
+                spellcheck="false"
+            >
+
+            <button
+                type="button"
+                onclick="navigateBrowser()"
+            >
+                Go
+            </button>
+
+        </div>
+
+
+        <div
+            id="browserPage"
+            class="browser-page"
+        ></div>
+
+    </div>
+
+
+    <!-- =================================================
+         NOTEPAD
+    ================================================== -->
+
+    <div
+        id="notepad"
+        class="window notepad-window"
+        data-title="Notepad"
+    >
+
+        <div class="window-titlebar">
+
+            <span>
+                Notepad
+            </span>
+
+            <div class="window-buttons">
+
+                <button
+                    type="button"
+                    onclick="minimizeWindow('notepad')"
+                >
+                    _
+                </button>
+
+                <button
+                    type="button"
+                    onclick="maximizeWindow('notepad')"
+                >
+                    □
+                </button>
+
+                <button
+                    type="button"
+                    onclick="closeWindow('notepad')"
+                >
+                    X
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="notepad-toolbar">
+
+            <button
+                type="button"
+                onclick="createNote()"
+            >
+                New
+            </button>
+
+            <button
+                type="button"
+                onclick="saveCurrentNote()"
+            >
+                Save
+            </button>
+
+            <button
+                type="button"
+                onclick="deleteCurrentNote()"
+            >
+                Delete
+            </button>
+
+            <div
+                id="notepadStatus"
+                class="notepad-status"
+            >
+                Ready
+            </div>
+
+        </div>
+
+
+        <div class="notepad-main">
+
+            <div class="notepad-files">
+
+                <div class="notepad-files-title">
+                    Notes
+                </div>
+
+                <div id="noteList"></div>
+
+            </div>
+
+
+            <div class="notepad-editor">
+
+                <input
+                    id="noteTitle"
+                    type="text"
+                    value=""
+                    placeholder="Note title"
+                    spellcheck="false"
+                >
+
+                <textarea
+                    id="notepadText"
+                    spellcheck="false"
+                ></textarea>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         MAIL
+    ================================================== -->
+
+    <div
+        id="mail"
+        class="window mail-window"
+        data-title="Mail"
+    >
+
+        <div class="window-titlebar">
+
+            <span>
+                Mail
+            </span>
+
+            <div class="window-buttons">
+
+                <button
+                    type="button"
+                    onclick="minimizeWindow('mail')"
+                >
+                    _
+                </button>
+
+                <button
+                    type="button"
+                    onclick="maximizeWindow('mail')"
+                >
+                    □
+                </button>
+
+                <button
+                    type="button"
+                    onclick="closeWindow('mail')"
+                >
+                    X
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="window-content">
+
+            <div class="mail-header">
+
+                <strong>
+                    INBOX
+                </strong>
+
+                <span>
+                    5 messages
+                </span>
+
+            </div>
+
+            <div id="mailList"></div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         BROWSER HISTORY
+    ================================================== -->
+
+    <div
+        id="history"
+        class="window browser-history-window"
+        data-title="Browser History"
+    >
+
+        <div class="window-titlebar">
+
+            <span>
+                Browser History
+            </span>
+
+            <div class="window-buttons">
+
+                <button
+                    type="button"
+                    onclick="minimizeWindow('history')"
+                >
+                    _
+                </button>
+
+                <button
+                    type="button"
+                    onclick="maximizeWindow('history')"
+                >
+                    □
+                </button>
+
+                <button
+                    type="button"
+                    onclick="closeWindow('history')"
+                >
+                    X
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <div class="history-toolbar">
+
+            <button
+                type="button"
+                onclick="clearHistory()"
+            >
+                Clear History
+            </button>
+
+            <span id="historyCount">
+                0 entries
+            </span>
+
+        </div>
+
+
+        <div
+            id="historyList"
+            class="browser-history-list"
+        ></div>
+
+    </div>
+
+
+    <!-- =================================================
+         TASKBAR
+    ================================================== -->
+
+    <div id="taskbar">
+
+        <button
+            id="startButton"
+            type="button"
+            onclick="toggleStartMenu()"
+        >
+            <strong>▣ START</strong>
+        </button>
+
+
+        <div id="taskbarWindows"></div>
+
+
+        <div id="clock">
+            12:00:00 PM
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         START MENU
+    ================================================== -->
+
+    <div id="startMenu">
+
+        <div class="start-header">
+            UNTITLED
+        </div>
+
+
+        <div
+            class="start-item"
+            onclick="
+                openWindow('explorer');
+                toggleStartMenu();
+            "
+        >
+            💻 My Computer
+        </div>
+
+
+        <div
+            class="start-item"
+            onclick="
+                openWindow('browser');
+                toggleStartMenu();
+            "
+        >
+            🌐 Internet
+        </div>
+
+
+        <div
+            class="start-item"
+            onclick="
+                openWindow('mail');
+                toggleStartMenu();
+            "
+        >
+            ✉️ Mail
+        </div>
+
+
+        <div
+            class="start-item"
+            onclick="
+                openWindow('notepad');
+                toggleStartMenu();
+            "
+        >
+            📝 Notepad
+        </div>
+
+
+        <div
+            class="start-item"
+            onclick="
+                openWindow('history');
+                toggleStartMenu();
+            "
+        >
+            🕘 Browser History
+        </div>
+
+
+        <hr>
+
+
+        <div
+            class="start-item"
+            onclick="shutdown()"
+        >
+            ⏻ Shut Down
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+</html>
+
