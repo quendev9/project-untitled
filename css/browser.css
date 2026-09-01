@@ -1,0 +1,256 @@
+/* =====================================================
+FAKE INTERNET BROWSER
+Project Untitled
+===================================================== */
+
+.browser-window {
+width: 760px;
+height: 520px;
+}
+
+/* =====================================================
+BROWSER TOOLBAR
+===================================================== */
+
+.browser-toolbar {
+height: 40px;
+
+padding: 5px;
+
+display: flex;
+
+align-items: center;
+
+gap: 4px;
+
+background: #c0c0c0;
+
+border-bottom: 2px solid #808080;
+
+}
+
+.browser-toolbar button {
+min-width: 32px;
+
+height: 27px;
+
+background: #c0c0c0;
+
+border-top: 2px solid #ffffff;
+border-left: 2px solid #ffffff;
+border-right: 2px solid #000000;
+border-bottom: 2px solid #000000;
+
+font-family:
+    "MS Sans Serif",
+    Arial,
+    sans-serif;
+
+font-size: 12px;
+
+cursor: pointer;
+
+}
+
+.browser-toolbar button:active {
+border-top: 2px solid #000000;
+border-left: 2px solid #000000;
+border-right: 2px solid #ffffff;
+border-bottom: 2px solid #ffffff;
+}
+
+.browser-toolbar button:disabled {
+color: #808080;
+
+cursor: default;
+
+}
+
+/* =====================================================
+ADDRESS BAR
+===================================================== */
+
+.browser-toolbar input {
+flex: 1;
+
+height: 27px;
+
+border: 2px inset #c0c0c0;
+
+padding: 4px 7px;
+
+font-family:
+    "Courier New",
+    monospace;
+
+font-size: 12px;
+
+user-select: text;
+
+}
+
+/* =====================================================
+BROWSER PAGE
+===================================================== */
+
+.browser-page {
+height: calc(100% - 40px);
+
+background: #ffffff;
+
+overflow-y: auto;
+
+padding: 22px;
+
+color: #000000;
+
+font-family:
+    "Times New Roman",
+    serif;
+
+font-size: 15px;
+
+line-height: 1.4;
+
+}
+
+/* =====================================================
+LINKS
+===================================================== */
+
+.browser-page a,
+.fake-link {
+color: #0000ee;
+
+text-decoration: underline;
+
+cursor: pointer;
+
+}
+
+.fake-link:visited {
+color: #551a8b;
+}
+
+.fake-link:hover {
+color: red;
+}
+
+/* =====================================================
+SEARCH PAGE
+===================================================== */
+
+.search-logo {
+font-size: 38px;
+
+font-weight: bold;
+
+text-align: center;
+
+color: #000080;
+
+margin-top: 25px;
+
+}
+
+.search-area {
+text-align: center;
+
+margin: 25px 0;
+
+}
+
+.search-area input {
+width: 65%;
+
+height: 30px;
+
+border: 2px inset #c0c0c0;
+
+padding: 4px;
+
+user-select: text;
+
+}
+
+.search-area button {
+height: 30px;
+
+margin-left: 4px;
+
+background: #c0c0c0;
+
+border-top: 2px solid #ffffff;
+border-left: 2px solid #ffffff;
+border-right: 2px solid #000000;
+border-bottom: 2px solid #000000;
+
+cursor: pointer;
+
+}
+
+.search-area button:active {
+border-top: 2px solid #000000;
+border-left: 2px solid #000000;
+border-right: 2px solid #ffffff;
+border-bottom: 2px solid #ffffff;
+}
+
+.search-result {
+border-top: 1px solid #aaaaaa;
+
+padding: 10px 0;
+
+}
+
+.search-result h3 {
+margin: 0;
+}
+
+/* =====================================================
+BROWSER ERROR
+===================================================== */
+
+.browser-error {
+text-align: center;
+
+margin-top: 80px;
+
+font-family:
+    "Times New Roman",
+    serif;
+
+}
+
+.browser-error h1 {
+font-size: 50px;
+
+
+margin-bottom: 5px;
+
+color: #777777;
+
+
+}
+
+/* =====================================================
+STATUS BAR
+===================================================== */
+
+.browser-status {
+height: 20px;
+
+background: #c0c0c0;
+
+border-top: 1px solid #808080;
+
+padding: 2px 6px;
+
+font-family:
+    "MS Sans Serif",
+    Arial,
+    sans-serif;
+
+font-size: 10px;
+
+}

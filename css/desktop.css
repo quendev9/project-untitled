@@ -1,0 +1,345 @@
+/* =====================================================
+   PROJECT UNTITLED — DESKTOP
+===================================================== */
+
+
+/* =========================
+   DESKTOP
+========================= */
+
+#desktop {
+    position: fixed;
+
+    inset: 0;
+
+    display: none;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #008080 0%,
+            #007777 50%,
+            #006b6b 100%
+        );
+}
+
+
+/* =========================
+   CRT SCANLINES
+========================= */
+
+#desktop::after {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0.05),
+            rgba(0, 0, 0, 0.05) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+
+    opacity: 0.35;
+
+    z-index: 9000;
+}
+
+
+/* =========================
+   DESKTOP ICON AREA
+========================= */
+
+#desktopIcons {
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    width: 100%;
+
+    height: calc(100% - 38px);
+
+    padding: 10px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    flex-wrap: wrap;
+
+    align-content: flex-start;
+
+    gap: 4px;
+
+    z-index: 10;
+}
+
+
+/* =========================
+   DESKTOP ICON
+========================= */
+
+.desktop-icon {
+    position: relative;
+
+    width: 90px;
+
+    min-height: 82px;
+
+    margin: 4px;
+
+    padding: 4px;
+
+    color: white;
+
+    text-align: center;
+
+    cursor: pointer;
+
+    border: 1px solid transparent;
+
+    z-index: 10;
+}
+
+
+/* =========================
+   ICON IMAGE
+========================= */
+
+.icon-image {
+    width: 42px;
+
+    height: 42px;
+
+    margin: 0 auto 5px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 34px;
+
+    line-height: 1;
+}
+
+
+/* =========================
+   ICON LABEL
+========================= */
+
+.desktop-icon span {
+    display: block;
+
+    font-family:
+        "MS Sans Serif",
+        Arial,
+        sans-serif;
+
+    font-size: 12px;
+
+    line-height: 14px;
+
+    color: white;
+
+    text-shadow:
+        1px 1px #000,
+        -1px 0 #000,
+        0 1px #000;
+
+    word-break: break-word;
+}
+
+
+/* =========================
+   ICON HOVER
+========================= */
+
+.desktop-icon:hover {
+    background: rgba(0, 0, 128, 0.35);
+}
+
+
+/* =========================
+   ICON SELECTED
+========================= */
+
+.desktop-icon.selected {
+    background: #000080;
+
+    border: 1px dotted white;
+}
+
+
+.desktop-icon.selected span {
+    color: white;
+}
+
+
+/* =========================
+   ICON IMAGE SELECTED
+========================= */
+
+.desktop-icon.selected .icon-image {
+    filter: brightness(1.15);
+}
+
+
+/* =========================
+   DESKTOP RIGHT CLICK AREA
+========================= */
+
+.desktop-context-menu {
+    position: absolute;
+
+    display: none;
+
+    width: 180px;
+
+    background: #c0c0c0;
+
+    border-top: 2px solid white;
+    border-left: 2px solid white;
+    border-right: 2px solid black;
+    border-bottom: 2px solid black;
+
+    box-shadow: 2px 2px 0 #000;
+
+    z-index: 9500;
+}
+
+
+.desktop-context-menu.visible {
+    display: block;
+}
+
+
+.desktop-context-item {
+    padding: 7px 12px;
+
+    font-family:
+        "MS Sans Serif",
+        Arial,
+        sans-serif;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+
+.desktop-context-item:hover {
+    background: #000080;
+
+    color: white;
+}
+
+
+.desktop-context-separator {
+    height: 1px;
+
+    margin: 3px 0;
+
+    background: #808080;
+
+    border-top: 1px solid white;
+}
+
+
+/* =========================
+   DESKTOP STATUS
+========================= */
+
+.desktop-status {
+    position: absolute;
+
+    left: 10px;
+
+    bottom: 45px;
+
+    font-family:
+        "Courier New",
+        monospace;
+
+    font-size: 10px;
+
+    color: rgba(255, 255, 255, 0.7);
+
+    pointer-events: none;
+
+    z-index: 5;
+}
+
+
+/* =========================
+   WALLPAPER EFFECT
+========================= */
+
+#desktop::before {
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0.04),
+            transparent 55%
+        );
+
+    z-index: 1;
+}
+
+
+/* =========================
+   DESKTOP FOCUS
+========================= */
+
+#desktop:focus {
+    outline: none;
+}
+
+
+/* =========================
+   RESPONSIVE FALLBACK
+========================= */
+
+@media (max-width: 700px) {
+
+    .desktop-icon {
+        width: 75px;
+
+        min-height: 72px;
+    }
+
+
+    .icon-image {
+        width: 36px;
+
+        height: 36px;
+
+        font-size: 29px;
+    }
+
+
+    .desktop-icon span {
+        font-size: 11px;
+    }
+
+}

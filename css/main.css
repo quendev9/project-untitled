@@ -1,0 +1,256 @@
+/* =====================================================
+   PROJECT UNTITLED
+   MAIN / GLOBAL STYLES
+===================================================== */
+
+
+/* =====================================================
+   RESET
+===================================================== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+
+    user-select: none;
+}
+
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    font-family:
+        "MS Sans Serif",
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #008080;
+}
+
+
+/* =====================================================
+   BODY
+===================================================== */
+
+body {
+    position: relative;
+
+    color: #000;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   BUTTON RESET
+===================================================== */
+
+button {
+    font-family:
+        "MS Sans Serif",
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    font-size: 11px;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   INPUTS
+===================================================== */
+
+input,
+textarea {
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+
+/* =====================================================
+   LINKS
+===================================================== */
+
+a {
+    color: #0000ee;
+
+    text-decoration: underline;
+
+    cursor: pointer;
+}
+
+
+/* =====================================================
+   SCROLLBARS
+   Old-school Windows style
+===================================================== */
+
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+
+::-webkit-scrollbar-track {
+    background: #c0c0c0;
+}
+
+
+::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+
+    border-right: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+}
+
+
+::-webkit-scrollbar-button {
+    background: #c0c0c0;
+
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+
+    border-right: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+
+    height: 16px;
+    width: 16px;
+}
+
+
+/* =====================================================
+   COMMON WINDOWS-95 BUTTON
+===================================================== */
+
+.win-button {
+    background: #c0c0c0;
+
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+
+    border-right: 2px solid #000000;
+    border-bottom: 2px solid #000000;
+
+    padding: 3px 8px;
+
+    min-height: 24px;
+}
+
+
+.win-button:active {
+    border-top: 2px solid #000000;
+    border-left: 2px solid #000000;
+
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+
+.win-button:disabled {
+    color: #808080;
+
+    cursor: default;
+}
+
+
+/* =====================================================
+   INSET FIELD
+===================================================== */
+
+.inset {
+    background: #ffffff;
+
+    border-top: 2px solid #808080;
+    border-left: 2px solid #808080;
+
+    border-right: 2px solid #ffffff;
+    border-bottom: 2px solid #ffffff;
+}
+
+
+/* =====================================================
+   HIDDEN
+===================================================== */
+
+.hidden {
+    display: none !important;
+}
+
+
+/* =====================================================
+   CRT / SCREEN OVERLAY
+===================================================== */
+
+.crt-overlay {
+    position: fixed;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    z-index: 99999;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+
+            rgba(0, 0, 0, 0.04) 0px,
+            rgba(0, 0, 0, 0.04) 1px,
+
+            transparent 1px,
+            transparent 3px
+        );
+
+    opacity: 0.35;
+}
+
+
+/* =====================================================
+   TEXT SELECTION
+===================================================== */
+
+/*
+   Most of the fake OS cannot be selected.
+   Actual text-editing areas override this.
+*/
+
+.selectable {
+    user-select: text;
+}
+
+
+/* =====================================================
+   FOCUS
+===================================================== */
+
+button:focus,
+input:focus,
+textarea:focus {
+    outline: 1px dotted #000000;
+}
+
+
+/* =====================================================
+   MOBILE / SMALL SCREEN PROTECTION
+===================================================== */
+
+@media (max-width: 700px) {
+
+    body {
+        min-width: 700px;
+    }
+
+}

@@ -1,0 +1,714 @@
+/* =====================================================
+FAKE INTERNET SITES
+Project Untitled
+===================================================== */
+
+/* =====================================================
+SITE HEADER
+===================================================== */
+
+.site-header {
+border-bottom: 3px double #000000;
+
+padding-bottom: 8px;
+
+margin-bottom: 15px;
+
+}
+
+.site-title {
+font-size: 30px;
+
+font-weight: bold;
+
+color: #000080;
+
+margin-bottom: 2px;
+
+}
+
+.site-subtitle {
+font-size: 12px;
+
+color: #555555;
+
+}
+
+.site-nav {
+background: #eeeeee;
+
+border: 1px solid #999999;
+
+padding: 6px;
+
+margin-bottom: 18px;
+
+}
+
+.site-nav a {
+margin-right: 15px;
+}
+
+/* =====================================================
+OLD WEB LINKS
+===================================================== */
+
+.fake-link {
+color: #0000ee;
+
+text-decoration: underline;
+
+cursor: pointer;
+
+}
+
+.fake-link:visited {
+color: #551a8b;
+}
+
+.fake-link:hover {
+color: red;
+}
+
+/* =====================================================
+HOMEPAGE
+===================================================== */
+
+.homepage-banner {
+text-align: center;
+
+border: 2px solid #000000;
+
+padding: 12px;
+
+margin-bottom: 20px;
+
+background: #ffffcc;
+
+}
+
+.visitor-counter {
+display: inline-block;
+
+background: #000000;
+
+color: #00ff00;
+
+font-family:
+    "Courier New",
+    monospace;
+
+padding: 3px 7px;
+
+margin-top: 8px;
+
+}
+
+/* =====================================================
+WEBSITE COLUMNS
+===================================================== */
+
+.web-columns {
+display: flex;
+
+gap: 25px;
+
+}
+
+.web-column {
+flex: 1;
+}
+
+/* =====================================================
+WEB BOX
+===================================================== */
+
+.web-box {
+border: 1px solid #888888;
+
+padding: 10px;
+
+margin-bottom: 15px;
+
+background: #fafafa;
+
+}
+
+.web-box h3 {
+margin-top: 0;
+
+background: #000080;
+
+color: #ffffff;
+
+padding: 4px;
+
+font-size: 14px;
+
+}
+
+/* =====================================================
+SEARCH ENGINE
+===================================================== */
+
+.search-logo {
+font-size: 38px;
+
+font-weight: bold;
+
+text-align: center;
+
+color: #000080;
+
+margin-top: 25px;
+
+}
+
+.search-area {
+text-align: center;
+
+margin: 25px 0;
+
+}
+
+.search-area input {
+width: 65%;
+
+height: 30px;
+
+border: 2px inset #c0c0c0;
+
+padding: 4px;
+
+user-select: text;
+
+}
+
+.search-area button {
+height: 30px;
+
+margin-left: 4px;
+
+background: #c0c0c0;
+
+border-top: 2px solid #ffffff;
+border-left: 2px solid #ffffff;
+border-right: 2px solid #000000;
+border-bottom: 2px solid #000000;
+
+cursor: pointer;
+
+}
+
+.search-area button:active {
+border-top: 2px solid #000000;
+border-left: 2px solid #000000;
+border-right: 2px solid #ffffff;
+border-bottom: 2px solid #ffffff;
+}
+
+.search-result {
+border-top: 1px solid #aaaaaa;
+
+padding: 10px 0;
+
+}
+
+.search-result h3 {
+margin: 0;
+}
+
+/* =====================================================
+NEWS
+===================================================== */
+
+.news-headline {
+font-size: 25px;
+
+font-weight: bold;
+
+margin-bottom: 5px;
+
+}
+
+.news-date {
+font-size: 12px;
+
+color: #666666;
+
+margin-bottom: 15px;
+
+}
+
+.news-story {
+border-bottom: 1px solid #aaaaaa;
+
+padding: 12px 0;
+
+}
+
+/* =====================================================
+MESSAGE BOARD / FORUM
+===================================================== */
+
+.forum-post {
+border: 1px solid #999999;
+
+margin-bottom: 12px;
+
+}
+
+.forum-title {
+background: #000080;
+
+color: #ffffff;
+
+padding: 5px;
+
+font-weight: bold;
+
+font-size: 13px;
+
+}
+
+.forum-body {
+padding: 10px;
+
+background: #f5f5f5;
+
+}
+
+.forum-user {
+font-size: 11px;
+
+color: #555555;
+
+margin-bottom: 8px;
+
+}
+
+/* =====================================================
+ARCHIVE
+===================================================== */
+
+.archive-warning {
+border: 2px solid #800000;
+
+background: #fff0f0;
+
+padding: 10px;
+
+margin-bottom: 15px;
+
+color: #800000;
+
+}
+
+.archive-document {
+border: 1px solid #777777;
+
+padding: 12px;
+
+background: #eeeeee;
+
+font-family:
+    "Courier New",
+    monospace;
+
+font-size: 12px;
+
+white-space: pre-wrap;
+
+}
+
+/* =====================================================
+GOVERNMENT PAGE
+===================================================== */
+
+.gov-header {
+border-bottom: 4px solid #990000;
+
+padding-bottom: 10px;
+
+margin-bottom: 15px;
+
+}
+
+.gov-title {
+font-family:
+Georgia,
+serif;
+
+font-size: 24px;
+
+font-weight: bold;
+
+}
+
+.gov-seal {
+float: right;
+
+font-size: 42px;
+
+}
+
+.gov-notice {
+background: #ffffdd;
+
+border: 1px solid #999999;
+
+padding: 12px;
+
+margin: 15px 0;
+
+}
+
+/* =====================================================
+ERROR PAGE
+===================================================== */
+
+.error-page {
+text-align: center;
+
+margin-top: 80px;
+
+}
+
+.error-code {
+font-size: 70px;
+
+font-weight: bold;
+
+color: #888888;
+
+}
+
+.error-page h2 {
+font-size: 25px;
+}
+
+/* =====================================================
+UNDER CONSTRUCTION
+===================================================== */
+
+.construction {
+background:
+repeating-linear-gradient(
+45deg,
+#ffff00,
+#ffff00 10px,
+#000000 10px,
+#000000 20px
+);
+
+padding: 4px;
+
+display: inline-block;
+
+color: #000000;
+
+font-weight: bold;
+
+}
+
+.old-banner {
+text-align: center;
+
+border: 1px solid #000000;
+
+padding: 7px;
+
+margin: 12px 0;
+
+}
+
+/* =====================================================
+SECRET / STRANGE TEXT
+===================================================== */
+
+.strange-note {
+font-family:
+"Courier New",
+monospace;
+
+font-size: 11px;
+
+color: #555555;
+
+border-top: 1px dotted #999999;
+
+margin-top: 25px;
+
+padding-top: 8px;
+
+}
+
+/* =====================================================
+ARTICLE
+===================================================== */
+
+.site-article {
+max-width: 720px;
+
+margin: 0 auto;
+
+}
+
+.site-article h1 {
+font-family:
+Georgia,
+serif;
+
+font-size: 28px;
+
+margin-bottom: 5px;
+
+}
+
+.site-article .article-meta {
+color: #666666;
+
+font-size: 11px;
+
+border-bottom: 1px solid #aaaaaa;
+
+padding-bottom: 8px;
+
+margin-bottom: 15px;
+
+}
+
+/* =====================================================
+WARNING BOX
+===================================================== */
+
+.warning-box {
+border: 2px solid #800000;
+
+background: #fff5f5;
+
+padding: 12px;
+
+margin: 15px 0;
+
+color: #800000;
+
+}
+
+/* =====================================================
+CLASSIFIED / RESTRICTED CONTENT
+===================================================== */
+
+.classified {
+font-family:
+"Courier New",
+monospace;
+
+border: 2px solid #000000;
+
+padding: 12px;
+
+background: #eeeeee;
+
+}
+
+.classified-label {
+display: inline-block;
+
+background: #000000;
+
+color: #ffffff;
+
+padding: 3px 8px;
+
+font-weight: bold;
+
+font-family:
+    Arial,
+    sans-serif;
+
+font-size: 11px;
+
+margin-bottom: 10px;
+
+}
+
+/* =====================================================
+OLD WEB FOOTER
+===================================================== */
+
+.site-footer {
+margin-top: 30px;
+
+padding-top: 10px;
+
+border-top: 1px solid #999999;
+
+text-align: center;
+
+font-size: 11px;
+
+color: #666666;
+
+}
+
+/* =====================================================
+BLINKING TEXT
+===================================================== */
+
+.blink {
+animation: oldWebBlink 1s steps(2, start) infinite;
+}
+
+@keyframes oldWebBlink {
+50% {
+visibility: hidden;
+}
+}
+
+/* =====================================================
+MARQUEE-STYLE TEXT
+===================================================== */
+
+.marquee {
+overflow: hidden;
+
+white-space: nowrap;
+
+border: 1px solid #000000;
+
+background: #ffff00;
+
+padding: 3px;
+
+font-family:
+    "Courier New",
+    monospace;
+
+font-size: 12px;
+
+}
+
+/* =====================================================
+VISITOR / COUNTER AREA
+===================================================== */
+
+.counter-box {
+display: inline-block;
+
+padding: 4px 8px;
+
+background: #000000;
+
+color: #00ff00;
+
+font-family:
+    "Courier New",
+    monospace;
+
+font-size: 12px;
+
+border: 2px inset #808080;
+
+}
+
+/* =====================================================
+LINK LIST
+===================================================== */
+
+.link-list {
+padding-left: 20px;
+}
+
+.link-list li {
+margin-bottom: 6px;
+}
+
+/* =====================================================
+OLD WEB TABLE
+===================================================== */
+
+.old-table {
+width: 100%;
+
+border-collapse: collapse;
+
+font-size: 12px;
+
+}
+
+.old-table th,
+.old-table td {
+border: 1px solid #888888;
+
+padding: 5px;
+
+text-align: left;
+
+}
+
+.old-table th {
+background: #c0c0c0;
+}
+
+/* =====================================================
+DOS / TERMINAL-STYLE AREA
+===================================================== */
+
+.terminal-page {
+background: #000000;
+
+color: #00ff00;
+
+padding: 15px;
+
+font-family:
+    "Courier New",
+    monospace;
+
+font-size: 13px;
+
+min-height: 300px;
+
+}
+
+.terminal-page .prompt {
+color: #ffffff;
+}
+
+.terminal-page .warning {
+color: #ff0000;
+}
+
+/* =====================================================
+HIDDEN CONTENT
+===================================================== */
+
+.hidden-web-content {
+display: none;
+}
+
+.revealed-web-content {
+display: block;
+}
+
+/* =====================================================
+MOBILE
+===================================================== */
+
+@media (max-width: 800px) {
+.web-columns {
+flex-direction: column;
+
+    gap: 10px;
+}
+
+.search-area input {
+    width: 80%;
+}
+
+.site-title {
+    font-size: 24px;
+}
+
+}

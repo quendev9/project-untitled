@@ -1,0 +1,258 @@
+/* =====================================================
+NOTEPAD
+Project Untitled
+===================================================== */
+
+.notepad-window {
+width: 650px;
+height: 480px;
+}
+
+/* =====================================================
+NOTEPAD TOOLBAR
+===================================================== */
+
+.notepad-toolbar {
+height: 36px;
+
+display: flex;
+
+align-items: center;
+
+gap: 5px;
+
+padding: 4px;
+
+background: #c0c0c0;
+
+border-bottom: 2px solid #808080;
+
+}
+
+.notepad-toolbar button {
+height: 26px;
+
+min-width: 55px;
+
+background: #c0c0c0;
+
+border-top: 2px solid #ffffff;
+border-left: 2px solid #ffffff;
+border-right: 2px solid #000000;
+border-bottom: 2px solid #000000;
+
+font-family:
+    "MS Sans Serif",
+    Arial,
+    sans-serif;
+
+font-size: 11px;
+
+cursor: pointer;
+
+}
+
+.notepad-toolbar button:active {
+border-top: 2px solid #000000;
+border-left: 2px solid #000000;
+border-right: 2px solid #ffffff;
+border-bottom: 2px solid #ffffff;
+}
+
+/* =====================================================
+STATUS
+===================================================== */
+
+.notepad-status {
+margin-left: auto;
+
+font-size: 11px;
+
+color: #333333;
+
+padding-right: 5px;
+
+}
+
+/* =====================================================
+MAIN AREA
+===================================================== */
+
+.notepad-main {
+display: flex;
+
+height: calc(100% - 36px);
+
+background: #ffffff;
+
+}
+
+/* =====================================================
+FILE / NOTE LIST
+===================================================== */
+
+.notepad-files {
+width: 160px;
+
+border-right: 2px solid #808080;
+
+background: #d4d0c8;
+
+overflow-y: auto;
+
+}
+
+.notepad-files-title {
+font-weight: bold;
+
+padding: 7px;
+
+border-bottom: 1px solid #999999;
+
+font-size: 12px;
+
+}
+
+.note-item {
+padding: 7px;
+
+
+cursor: pointer;
+
+border-bottom: 1px solid #aaaaaa;
+
+font-size: 11px;
+
+}
+
+.note-item:hover {
+background: #000080;
+
+
+color: #ffffff;
+
+
+}
+
+.note-item.active {
+background: #000080;
+
+
+color: #ffffff;
+
+
+}
+
+/* =====================================================
+EDITOR
+===================================================== */
+
+.notepad-editor {
+flex: 1;
+
+display: flex;
+
+flex-direction: column;
+
+background: #ffffff;
+
+}
+
+/* =====================================================
+NOTE TITLE
+===================================================== */
+
+#noteTitle {
+height: 32px;
+
+border: none;
+
+border-bottom: 1px solid #999999;
+
+padding: 6px;
+
+font-family:
+    "Times New Roman",
+    serif;
+
+font-weight: bold;
+
+font-size: 15px;
+
+outline: none;
+
+}
+
+/* =====================================================
+NOTE BODY
+===================================================== */
+
+#notepadText {
+flex: 1;
+
+resize: none;
+
+border: none;
+
+outline: none;
+
+padding: 10px;
+
+font-family:
+    "Courier New",
+    monospace;
+
+font-size: 13px;
+
+line-height: 1.5;
+
+color: #111111;
+
+background: #ffffff;
+
+user-select: text;
+
+}
+
+/* =====================================================
+CORRUPTED NOTE
+===================================================== */
+
+.notepad-corrupted #notepadText {
+color: #555555;
+
+background:
+    repeating-linear-gradient(
+        0deg,
+        #ffffff,
+        #ffffff 2px,
+        #eeeeee 3px
+    );
+
+}
+
+/* =====================================================
+READ-ONLY NOTE
+===================================================== */
+
+.notepad-readonly #notepadText {
+background: #eeeeee;
+
+color: #555555;
+
+}
+
+/* =====================================================
+SAVE INDICATOR
+===================================================== */
+
+.notepad-unsaved #noteTitle {
+background: #ffffcc;
+}
+
+.notepad-unsaved .notepad-status {
+color: #800000;
+
+font-weight: bold;
+
+}
