@@ -1,462 +1,544 @@
-// =====================================================
-// PROJECT UNTITLED
-// APP — FAKE INTERNET BROWSER
-// =====================================================
+/* =========================================================
+   PROJECT UNTITLED
+   APPLICATION — BROWSER
+   ========================================================= */
 
 (function () {
 
     "use strict";
 
-    // =================================================
-    // BROWSER STATE
-    // =================================================
 
-    const state = {
-
-        currentUrl: "",
-
-        currentPage: null,
-
-        history: [],
-
-        historyIndex: -1,
-
-        initialized: false
-
-    };
-
-
-    // =================================================
-    // ELEMENTS
-    // =================================================
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
 
     let browserWindow = null;
-
     let addressBar = null;
-
     let browserPage = null;
 
     let backButton = null;
-
     let forwardButton = null;
-
-    let reloadButton = null;
-
+    let refreshButton = null;
     let homeButton = null;
+    let goButton = null;
 
 
-    // =================================================
-    // DEFAULT HOME PAGE
-    // =================================================
+    /* =====================================================
+       CONFIGURATION
+       ===================================================== */
 
-    const HOME_URL = "http://www.northridge.local/";
+    const HOME_URL =
+        "http://www.northridge.local/";
 
 
-    // =================================================
-    // HELPERS
-    // =================================================
+    const HISTORY_STORAGE_KEY =
+        "projectUntitledBrowserHistory";
 
-    function getElement(selectors) {
 
-        for (const selector of selectors) {
+    /* =====================================================
+       STATE
+       ===================================================== */
 
-            const element =
-                document.querySelector(selector);
+    let currentUrl =
+        HOME_URL;
 
-            if (element) {
-                return element;
-            }
+    let currentPage =
+        null;
+
+
+    /*
+       This is the Browser's navigation history.
+
+       It is NOT the same thing as the
+       Browser History application.
+
+       Browser history:
+       - Back
+       - Forward
+
+       History application:
+       - visited websites
+       - persistent records
+    */
+
+    let navigationHistory = [];
+
+    let historyIndex = -1;
+
+    let initialized = false;
+
+
+    /* =====================================================
+       WEBSITE DATA
+       ===================================================== */
+
+    function getWebsites() {
+
+        if (
+            Array.isArray(
+                window.websites
+            )
+        ) {
+
+            return window.websites;
+
         }
 
-        return null;
+
+        if (
+            Array.isArray(
+                window.Websites
+            )
+        ) {
+
+            return window.Websites;
+
+        }
+
+
+        if (
+            Array.isArray(
+                window.WEBSITES
+            )
+        ) {
+
+            return window.WEBSITES;
+
+        }
+
+
+        if (
+            Array.isArray(
+                window.WebsiteData
+            )
+        ) {
+
+            return window.WebsiteData;
+
+        }
+
+
+        return [];
+
     }
 
 
-    function escapeHTML(value) {
-
-        if (value === null || value === undefined) {
-            return "";
-        }
-
-        return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
+    /* =====================================================
+       NORMALIZE URL
+       ===================================================== */
 
     function normalizeUrl(url) {
 
         if (!url) {
-            return HOME_URL;
+            return "";
         }
 
-        url = String(url).trim();
 
-        if (!url) {
-            return HOME_URL;
-        }
+        let normalized =
+            String(url)
+                .trim()
+                .toLowerCase();
 
-        // Already has a protocol.
-        if (
-            url.startsWith("http://") ||
-            url.startsWith("https://")
-        ) {
-            return url;
-        }
 
-        // Fake browser addresses should use HTTP.
-        return "http://" + url;
+        normalized =
+            normalized.replace(
+                /\/+$/,
+                ""
+            );
+
+
+        return normalized;
+
     }
 
 
-    function getCleanUrl(url) {
-
-        return String(url)
-            .replace(/^https?:\/\//i, "")
-            .replace(/\/+$/, "");
-    }
-
-
-    // =================================================
-    // WEBSITE DATA
-    // =================================================
-
-    function getWebsites() {
-
-        /*
-         * websites.js should expose the fake websites.
-         *
-         * We support several possible names so that
-         * browser.js isn't tightly coupled to one
-         * specific data implementation.
-         */
-
-        if (Array.isArray(window.websites)) {
-            return window.websites;
-        }
-
-        if (Array.isArray(window.Websites)) {
-            return window.Websites;
-        }
-
-        if (Array.isArray(window.WEBSITES)) {
-            return window.WEBSITES;
-        }
-
-        if (
-            window.WebsiteData &&
-            Array.isArray(window.WebsiteData)
-        ) {
-            return window.WebsiteData;
-        }
-
-        return [];
-    }
-
-
-    // =================================================
-    // FIND WEBSITE
-    // =================================================
+    /* =====================================================
+       FIND WEBSITE
+       ===================================================== */
 
     function findWebsite(url) {
 
-        const websites = getWebsites();
+        const normalizedUrl =
+            normalizeUrl(url);
 
-        const target =
-            getCleanUrl(normalizeUrl(url))
-                .toLowerCase();
 
-        for (const site of websites) {
+        const websites =
+            getWebsites();
 
-            if (!site) {
-                continue;
-            }
 
-            const possibleUrls = [
+        return (
+            websites.find(
+                function (site) {
 
-                site.url,
+                    if (!site) {
+                        return false;
+                    }
 
-                site.href,
 
-                site.domain,
+                    const candidates = [
 
-                site.address
+                        site.url,
+                        site.href,
+                        site.domain,
+                        site.address
 
-            ];
+                    ];
 
-            for (const siteUrl of possibleUrls) {
 
-                if (!siteUrl) {
-                    continue;
+                    return candidates.some(
+                        function (candidate) {
+
+                            return (
+                                normalizeUrl(
+                                    candidate
+                                ) ===
+                                normalizedUrl
+                            );
+
+                        }
+                    );
+
                 }
+            ) ||
+            null
+        );
 
-                const cleanSiteUrl =
-                    getCleanUrl(siteUrl)
-                        .toLowerCase();
-
-                if (
-                    cleanSiteUrl === target
-                ) {
-                    return site;
-                }
-            }
-        }
-
-        return null;
     }
 
 
-    // =================================================
-    // FIND WEBSITE BY SEARCH TERM
-    // =================================================
+    /* =====================================================
+       SEARCH WEBSITES
+       ===================================================== */
 
     function searchWebsites(query) {
 
-        const websites = getWebsites();
+        const websites =
+            getWebsites();
+
 
         const search =
             String(query || "")
                 .trim()
                 .toLowerCase();
 
+
         if (!search) {
             return [];
         }
 
-        return websites.filter(site => {
 
-            if (!site) {
-                return false;
-            }
+        return websites.filter(
+            function (site) {
 
-            const searchableText = [
+                if (!site) {
+                    return false;
+                }
 
-                site.title,
 
-                site.name,
+                const searchable = [
 
-                site.description,
+                    site.title,
+                    site.name,
+                    site.description,
+                    site.url,
+                    site.domain,
+                    site.category,
+                    site.content,
+                    site.keywords
 
-                site.url,
-
-                site.domain,
-
-                site.category,
-
-                site.content,
-
-                site.keywords
-
-            ]
+                ]
                 .filter(Boolean)
                 .join(" ")
                 .toLowerCase();
 
-            return searchableText.includes(search);
-        });
-    }
 
-
-    // =================================================
-    // UPDATE ADDRESS BAR
-    // =================================================
-
-    function updateAddressBar(url) {
-
-        if (!addressBar) {
-            return;
-        }
-
-        addressBar.value = url;
-    }
-
-
-    // =================================================
-    // UPDATE NAVIGATION BUTTONS
-    // =================================================
-
-    function updateNavigationButtons() {
-
-        if (backButton) {
-
-            backButton.disabled =
-                state.historyIndex <= 0;
-        }
-
-        if (forwardButton) {
-
-            forwardButton.disabled =
-                state.historyIndex >=
-                state.history.length - 1;
-        }
-    }
-
-
-    // =================================================
-    // RECORD HISTORY
-    // =================================================
-
-    function recordHistory(url) {
-
-        if (!url) {
-            return;
-        }
-
-        /*
-         * If the user went backward and then navigates
-         * somewhere new, remove the old forward history.
-         */
-
-        if (
-            state.historyIndex <
-            state.history.length - 1
-        ) {
-
-            state.history =
-                state.history.slice(
-                    0,
-                    state.historyIndex + 1
+                return searchable.includes(
+                    search
                 );
-        }
 
-
-        /*
-         * Don't create duplicate entries when the
-         * browser is already on the same page.
-         */
-
-        if (
-            state.history.length > 0 &&
-            state.history[
-                state.history.length - 1
-            ] === url
-        ) {
-
-            state.historyIndex =
-                state.history.length - 1;
-
-            updateNavigationButtons();
-
-            return;
-        }
-
-
-        state.history.push(url);
-
-        state.historyIndex =
-            state.history.length - 1;
-
-
-        updateNavigationButtons();
-
-
-        /*
-         * Tell the history application that a new
-         * browser visit occurred.
-         */
-
-        document.dispatchEvent(
-            new CustomEvent(
-                "browserHistoryChanged",
-                {
-                    detail: {
-                        url: url,
-                        history:
-                            [...state.history]
-                    }
-                }
-            )
+            }
         );
+
     }
 
 
-    // =================================================
-    // SAVE BROWSER HISTORY
-    // =================================================
+    /* =====================================================
+       LOAD BROWSER HISTORY
+       ===================================================== */
 
-    function saveHistory() {
+    function loadNavigationHistory() {
+
+        try {
+
+            const stored =
+                localStorage.getItem(
+                    HISTORY_STORAGE_KEY
+                );
+
+
+            if (!stored) {
+
+                navigationHistory = [];
+                historyIndex = -1;
+
+                return;
+
+            }
+
+
+            const parsed =
+                JSON.parse(stored);
+
+
+            if (
+                Array.isArray(parsed)
+            ) {
+
+                navigationHistory =
+                    parsed;
+
+                historyIndex =
+                    navigationHistory.length - 1;
+
+            } else {
+
+                navigationHistory = [];
+                historyIndex = -1;
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "[Browser] Could not load navigation history.",
+                error
+            );
+
+
+            navigationHistory = [];
+            historyIndex = -1;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       SAVE BROWSER NAVIGATION HISTORY
+       ===================================================== */
+
+    function saveNavigationHistory() {
 
         try {
 
             localStorage.setItem(
-                "projectUntitledBrowserHistory",
+                HISTORY_STORAGE_KEY,
                 JSON.stringify(
-                    state.history
+                    navigationHistory
                 )
             );
 
         } catch (error) {
 
             console.warn(
-                "Could not save browser history.",
+                "[Browser] Could not save navigation history.",
                 error
             );
+
         }
+
     }
 
 
-    // =================================================
-    // LOAD BROWSER HISTORY
-    // =================================================
+    /* =====================================================
+       RECORD NAVIGATION
+       ===================================================== */
 
-    function loadHistory() {
+    function recordNavigation(url) {
 
-        try {
+        if (!url) {
+            return;
+        }
 
-            const saved =
-                localStorage.getItem(
-                    "projectUntitledBrowserHistory"
+
+        /*
+           If we navigated after pressing Back,
+           discard the old Forward history.
+        */
+
+        if (
+            historyIndex <
+            navigationHistory.length - 1
+        ) {
+
+            navigationHistory =
+                navigationHistory.slice(
+                    0,
+                    historyIndex + 1
                 );
 
-            if (!saved) {
-                return;
-            }
-
-            const parsed =
-                JSON.parse(saved);
-
-            if (Array.isArray(parsed)) {
-
-                state.history =
-                    parsed;
-
-                state.historyIndex =
-                    state.history.length - 1;
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Could not load browser history.",
-                error
-            );
         }
 
-        updateNavigationButtons();
+
+        navigationHistory.push(
+            url
+        );
+
+
+        /*
+           Keep the Browser navigation history
+           reasonably small.
+        */
+
+        if (
+            navigationHistory.length >
+            100
+        ) {
+
+            navigationHistory.shift();
+
+        }
+
+
+        historyIndex =
+            navigationHistory.length - 1;
+
+
+        saveNavigationHistory();
+
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "browserHistoryChanged",
+                {
+                    detail: {
+
+                        url,
+
+                        history:
+                            [
+                                ...navigationHistory
+                            ]
+
+                    }
+
+                }
+            )
+        );
+
     }
 
 
-    // =================================================
-    // PLAY NAVIGATION SOUND
-    // =================================================
+    /* =====================================================
+       PLAY NAVIGATION SOUND
+       ===================================================== */
 
     function navigationSound() {
 
         if (
-            typeof playSound === "function"
+            typeof SoundSystem !==
+                "undefined" &&
+            typeof SoundSystem.navigate ===
+                "function"
         ) {
 
-            playSound("navigate");
+            SoundSystem.navigate();
+
         }
+
     }
 
 
-    // =================================================
-    // RENDER PAGE
-    // =================================================
+    /* =====================================================
+       CREATE HISTORY RECORD
+       ===================================================== */
+
+    function createHistoryRecord(
+        url,
+        site
+    ) {
+
+        return {
+
+            id:
+                site?.id ||
+                site?.siteId ||
+                site?.slug ||
+                url,
+
+            title:
+                site?.title ||
+                site?.name ||
+                url,
+
+            url,
+
+            site:
+                site || null
+
+        };
+
+    }
+
+
+    /* =====================================================
+       EMIT WEBSITE VISIT
+       ===================================================== */
+
+    function emitWebsiteVisit(
+        url,
+        site
+    ) {
+
+        const detail =
+            createHistoryRecord(
+                url,
+                site
+            );
+
+
+        /*
+           This is the event HistorySystem
+           listens for.
+        */
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "browserVisited",
+                {
+                    detail
+                }
+            )
+        );
+
+
+        /*
+           Keep the older event too.
+           Other future systems may use it.
+        */
+
+        document.dispatchEvent(
+            new CustomEvent(
+                "browserNavigated",
+                {
+                    detail: {
+
+                        url,
+
+                        site
+
+                    }
+
+                }
+            )
+        );
+
+    }
+
+
+    /* =====================================================
+       RENDER WEBSITE
+       ===================================================== */
 
     function renderPage(site) {
 
@@ -464,405 +546,711 @@
             return;
         }
 
-        if (!site) {
 
-            render404(
-                state.currentUrl
-            );
+        currentPage =
+            site || null;
+
+
+        /*
+           A website can provide its own HTML.
+        */
+
+        if (
+            site &&
+            typeof site.html ===
+                "string"
+        ) {
+
+            browserPage.innerHTML =
+                site.html;
+
+
+            attachFakeLinks();
+
 
             return;
+
         }
 
 
         /*
-         * Different websites can use different property
-         * names depending on how websites.js is written.
-         */
-
-        const title =
-            site.title ||
-            site.name ||
-            "Untitled Site";
-
-        const description =
-            site.description ||
-            "";
-
-        let content =
-            site.content ||
-            site.html ||
-            site.body ||
-            "";
-
-
-        /*
-         * If the data contains a complete HTML string,
-         * render it directly.
-         *
-         * Otherwise build a basic old-web page.
-         */
+           Some website data may use
+           "content" instead.
+        */
 
         if (
-            site.html ||
-            site.content
+            site &&
+            typeof site.content ===
+                "string"
         ) {
-
-            browserPage.innerHTML =
-                content;
-
-        } else {
 
             browserPage.innerHTML = `
 
-                <div class="site-header">
+                <div class="browser-site">
 
-                    <div class="site-title">
-                        ${escapeHTML(title)}
+                    <h1>
+                        ${escapeHtml(
+                            site.title ||
+                            site.name ||
+                            "Untitled Website"
+                        )}
+                    </h1>
+
+                    <div>
+                        ${site.content}
                     </div>
-
-                    <div class="site-subtitle">
-                        ${escapeHTML(description)}
-                    </div>
-
-                </div>
-
-                <div class="web-box">
-
-                    ${escapeHTML(
-                        site.text ||
-                        description ||
-                        "This page contains no information."
-                    )}
 
                 </div>
 
             `;
+
+
+            attachFakeLinks();
+
+
+            return;
+
         }
 
 
         /*
-         * Some data objects may specify their own title.
-         */
+           Generic fallback website.
+        */
 
-        if (site.pageTitle) {
+        if (site) {
 
-            const titleElement =
-                document.createElement("title");
+            browserPage.innerHTML = `
 
-            titleElement.textContent =
-                site.pageTitle;
-        }
+                <div class="browser-site">
 
-
-        /*
-         * Turn internal fake links into browser
-         * navigation instead of letting the real browser
-         * leave Project Untitled.
-         */
-
-        attachFakeLinks();
-    }
-
-
-    // =================================================
-    // 404 PAGE
-    // =================================================
-
-    function render404(url) {
-
-        if (!browserPage) {
-            return;
-        }
-
-        const cleanUrl =
-            getCleanUrl(url);
-
-        browserPage.innerHTML = `
-
-            <div class="error-page">
-
-                <div class="error-code">
-                    404
-                </div>
-
-                <h2>
-                    Page Not Found
-                </h2>
-
-                <p>
-                    The requested page could not be
-                    located on this network.
-                </p>
-
-                <p>
-                    <strong>
-                        ${escapeHTML(cleanUrl)}
-                    </strong>
-                </p>
-
-                <hr>
-
-                <p>
-                    The address may be incorrect,
-                    unavailable, or no longer exists.
-                </p>
-
-                <p>
-                    <a
-                        href="#"
-                        data-browser-action="home"
-                    >
-                        Return to the North Ridge homepage
-                    </a>
-                </p>
-
-            </div>
-
-        `;
-
-        attachFakeLinks();
-    }
-
-
-    // =================================================
-    // SEARCH PAGE
-    // =================================================
-
-    function renderSearchPage(query) {
-
-        if (!browserPage) {
-            return;
-        }
-
-        const results =
-            searchWebsites(query);
-
-
-        let resultHTML = "";
-
-
-        if (results.length === 0) {
-
-            resultHTML = `
-
-                <div class="search-result">
-
-                    <h3>
-                        No results found
-                    </h3>
+                    <h1>
+                        ${escapeHtml(
+                            site.title ||
+                            site.name ||
+                            "Untitled Website"
+                        )}
+                    </h1>
 
                     <p>
-                        No pages matched
-                        "<strong>
-                            ${escapeHTML(query)}
-                        </strong>".
+                        ${
+                            escapeHtml(
+                                site.description ||
+                                "No additional information is available."
+                            )
+                        }
                     </p>
 
                 </div>
 
             `;
 
-        } else {
 
-            results.forEach(site => {
-
-                const title =
-                    site.title ||
-                    site.name ||
-                    "Unknown Site";
-
-                const url =
-                    site.url ||
-                    site.domain ||
-                    "#";
-
-                const description =
-                    site.description ||
-                    site.text ||
-                    "No description available.";
+            attachFakeLinks();
 
 
-                resultHTML += `
+            return;
 
-                    <div class="search-result">
+        }
 
-                        <h3>
 
-                            <a
-                                href="#"
-                                class="fake-link"
-                                data-browser-url="${escapeHTML(
-                                    normalizeUrl(url)
-                                )}"
-                            >
-                                ${escapeHTML(title)}
-                            </a>
+        render404();
 
-                        </h3>
+    }
 
-                        <div>
-                            <small>
-                                ${escapeHTML(
-                                    normalizeUrl(url)
-                                )}
-                            </small>
-                        </div>
 
-                        <p>
-                            ${escapeHTML(description)}
-                        </p>
+    /* =====================================================
+       RENDER HOME PAGE
+       ===================================================== */
 
-                    </div>
+    function renderHomePage() {
 
-                `;
-            });
+        const homeSite =
+            findWebsite(
+                HOME_URL
+            );
+
+
+        if (homeSite) {
+
+            renderPage(
+                homeSite
+            );
+
+            return;
+
+        }
+
+
+        if (!browserPage) {
+            return;
         }
 
 
         browserPage.innerHTML = `
 
-            <div class="search-logo">
-                NORTH SEARCH
-            </div>
+            <div class="browser-site browser-home">
 
-            <div class="search-area">
+                <h1>
+                    NORTH RIDGE NETWORK
+                </h1>
 
-                <input
-                    id="browserSearchInput"
-                    type="text"
-                    value="${escapeHTML(query)}"
-                    autocomplete="off"
-                >
+                <p>
+                    Welcome to the North Ridge
+                    local network.
+                </p>
 
-                <button
-                    id="browserSearchButton"
-                    type="button"
-                >
-                    Search
-                </button>
+                <p>
+                    Enter a website address
+                    or search the network.
+                </p>
 
             </div>
-
-            <div>
-
-                <strong>
-                    Search results for:
-                </strong>
-
-                "${escapeHTML(query)}"
-
-            </div>
-
-            <br>
-
-            ${resultHTML}
 
         `;
 
-
-        const searchInput =
-            document.getElementById(
-                "browserSearchInput"
-            );
-
-        const searchButton =
-            document.getElementById(
-                "browserSearchButton"
-            );
-
-
-        if (searchButton) {
-
-            searchButton.addEventListener(
-                "click",
-                function () {
-
-                    performSearch(
-                        searchInput
-                            ? searchInput.value
-                            : ""
-                    );
-                }
-            );
-        }
-
-
-        if (searchInput) {
-
-            searchInput.addEventListener(
-                "keydown",
-                function (event) {
-
-                    if (
-                        event.key === "Enter"
-                    ) {
-
-                        performSearch(
-                            searchInput.value
-                        );
-                    }
-                }
-            );
-
-            setTimeout(() => {
-
-                searchInput.focus();
-
-            }, 0);
-        }
-
-
-        attachFakeLinks();
     }
 
 
-    // =================================================
-    // PERFORM SEARCH
-    // =================================================
+    /* =====================================================
+       RENDER 404
+       ===================================================== */
 
-    function performSearch(query) {
+    function render404() {
 
-        query =
-            String(query || "")
-                .trim();
-
-        if (!query) {
+        if (!browserPage) {
             return;
         }
 
 
+        browserPage.innerHTML = `
+
+            <div class="browser-site browser-404">
+
+                <h1>
+                    404
+                </h1>
+
+                <p>
+                    Website not found.
+                </p>
+
+                <p>
+                    The requested address does not
+                    exist on the North Ridge network.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+
+    /* =====================================================
+       RENDER SEARCH
+       ===================================================== */
+
+    function renderSearchResults(
+        query,
+        results
+    ) {
+
+        if (!browserPage) {
+            return;
+        }
+
+
+        let html = `
+
+            <div class="browser-site browser-search">
+
+                <h1>
+                    NORTHSEARCH
+                </h1>
+
+                <p>
+                    Search results for:
+                    <strong>
+                        ${escapeHtml(query)}
+                    </strong>
+                </p>
+
+                <hr>
+
+        `;
+
+
+        if (!results.length) {
+
+            html += `
+
+                <p>
+                    No results found.
+                </p>
+
+            `;
+
+        } else {
+
+            results.forEach(
+                function (site) {
+
+                    const title =
+                        site.title ||
+                        site.name ||
+                        site.url ||
+                        "Untitled";
+
+
+                    const url =
+                        site.url ||
+                        site.href ||
+                        site.address ||
+                        "";
+
+
+                    html += `
+
+                        <div
+                            class="browser-search-result"
+                        >
+
+                            <a
+                                href="${escapeHtml(url)}"
+                                data-internal-link="true"
+                            >
+                                ${escapeHtml(title)}
+                            </a>
+
+                            <p>
+                                ${
+                                    escapeHtml(
+                                        site.description ||
+                                        ""
+                                    )
+                                }
+                            </p>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+        }
+
+
+        html += `
+
+            </div>
+
+        `;
+
+
+        browserPage.innerHTML =
+            html;
+
+
+        attachFakeLinks();
+
+    }
+
+
+    /* =====================================================
+       PERFORM SEARCH
+       ===================================================== */
+
+    function performSearch(query) {
+
+        const search =
+            String(query || "")
+                .trim();
+
+
+        if (!search) {
+            return;
+        }
+
+
+        const results =
+            searchWebsites(
+                search
+            );
+
+
         const searchUrl =
-            "http://northsearch.local/search?q=" +
-            encodeURIComponent(query);
+            `http://northsearch.local/search?q=${encodeURIComponent(search)}`;
 
 
-        state.currentUrl =
+        currentUrl =
             searchUrl;
 
 
-        updateAddressBar(
+        if (addressBar) {
+
+            addressBar.value =
+                searchUrl;
+
+        }
+
+
+        recordNavigation(
             searchUrl
         );
 
 
-        recordHistory(
-            searchUrl
+        renderSearchResults(
+            search,
+            results
         );
 
-        saveHistory();
 
         navigationSound();
 
 
-        renderSearchPage(
-            query
+        document.dispatchEvent(
+            new CustomEvent(
+                "browserNavigated",
+                {
+                    detail: {
+
+                        url:
+                            searchUrl,
+
+                        site:
+                            null,
+
+                        query:
+                            search
+
+                    }
+
+                }
+            )
         );
+
     }
 
 
-    // =================================================
-    // ATTACH FAKE LINKS
-    // =================================================
+    /* =====================================================
+       NAVIGATE
+       ===================================================== */
+
+    function navigateTo(
+        url,
+        options
+    ) {
+
+        const settings =
+            options || {};
+
+
+        if (!url) {
+            return;
+        }
+
+
+        let targetUrl =
+            String(url).trim();
+
+
+        /*
+           Allow users to type a bare
+           north ridge address.
+        */
+
+        if (
+            !targetUrl.includes("://")
+        ) {
+
+            targetUrl =
+                `http://${targetUrl}`;
+
+        }
+
+
+        /*
+           NORTHSEARCH
+        */
+
+        if (
+            targetUrl.startsWith(
+                "http://northsearch.local/search"
+            )
+        ) {
+
+            const queryMatch =
+                targetUrl.match(
+                    /[?&]q=([^&]+)/i
+                );
+
+
+            const query =
+                queryMatch
+                    ? decodeURIComponent(
+                        queryMatch[1]
+                    )
+                    : "";
+
+
+            if (addressBar) {
+
+                addressBar.value =
+                    targetUrl;
+
+            }
+
+
+            currentUrl =
+                targetUrl;
+
+
+            if (
+                !settings.fromHistory
+            ) {
+
+                recordNavigation(
+                    targetUrl
+                );
+
+            }
+
+
+            renderSearchResults(
+                query,
+                searchWebsites(query)
+            );
+
+
+            navigationSound();
+
+
+            return;
+
+        }
+
+
+        const site =
+            findWebsite(
+                targetUrl
+            );
+
+
+        currentUrl =
+            targetUrl;
+
+
+        if (addressBar) {
+
+            addressBar.value =
+                targetUrl;
+
+        }
+
+
+        if (
+            !settings.fromHistory
+        ) {
+
+            recordNavigation(
+                targetUrl
+            );
+
+        }
+
+
+        renderPage(
+            site
+        );
+
+
+        navigationSound();
+
+
+        /*
+           Tell the History application
+           that the user visited a site.
+        */
+
+        emitWebsiteVisit(
+            targetUrl,
+            site
+        );
+
+    }
+
+
+    /* =====================================================
+       GO HOME
+       ===================================================== */
+
+    function goHome() {
+
+        navigateTo(
+            HOME_URL
+        );
+
+    }
+
+
+    /* =====================================================
+       GO BACK
+       ===================================================== */
+
+    function goBack() {
+
+        if (
+            historyIndex <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        historyIndex--;
+
+
+        const url =
+            navigationHistory[
+                historyIndex
+            ];
+
+
+        navigateTo(
+            url,
+            {
+                fromHistory:
+                    true
+            }
+        );
+
+
+        saveNavigationHistory();
+
+    }
+
+
+    /* =====================================================
+       GO FORWARD
+       ===================================================== */
+
+    function goForward() {
+
+        if (
+            historyIndex >=
+            navigationHistory.length - 1
+        ) {
+
+            return;
+
+        }
+
+
+        historyIndex++;
+
+
+        const url =
+            navigationHistory[
+                historyIndex
+            ];
+
+
+        navigateTo(
+            url,
+            {
+                fromHistory:
+                    true
+            }
+        );
+
+
+        saveNavigationHistory();
+
+    }
+
+
+    /* =====================================================
+       RELOAD
+       ===================================================== */
+
+    function reload() {
+
+        if (
+            currentUrl ===
+            HOME_URL
+        ) {
+
+            renderHomePage();
+
+            return;
+
+        }
+
+
+        navigateTo(
+            currentUrl,
+            {
+                fromHistory:
+                    true
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       SUBMIT ADDRESS
+       ===================================================== */
+
+    function submitAddress() {
+
+        if (!addressBar) {
+            return;
+        }
+
+
+        const value =
+            addressBar.value.trim();
+
+
+        if (!value) {
+            return;
+        }
+
+
+        /*
+           If the user typed something that looks
+           like a search rather than a URL,
+           send it to NorthSearch.
+        */
+
+        if (
+            !value.includes(".local") &&
+            !value.includes("://")
+        ) {
+
+            performSearch(
+                value
+            );
+
+
+            return;
+
+        }
+
+
+        navigateTo(
+            value
+        );
+
+    }
+
+
+    /* =====================================================
+       ATTACH FAKE LINKS
+       ===================================================== */
 
     function attachFakeLinks() {
 
@@ -873,547 +1261,300 @@
 
         const links =
             browserPage.querySelectorAll(
-                "[data-browser-url]"
+                "a"
             );
 
 
-        links.forEach(link => {
+        links.forEach(
+            function (link) {
 
-            link.addEventListener(
-                "click",
-                function (event) {
+                link.addEventListener(
+                    "click",
+                    function (event) {
 
-                    event.preventDefault();
+                        const href =
+                            link.getAttribute(
+                                "href"
+                            );
 
-                    const url =
-                        link.dataset.browserUrl;
 
-                    if (url) {
+                        if (!href) {
+                            return;
+                        }
 
-                        navigateTo(
-                            url
-                        );
+
+                        /*
+                           We own fake/internal links.
+                        */
+
+                        if (
+                            link.dataset.internalLink ===
+                                "true" ||
+                            href.startsWith(
+                                "http://"
+                            ) ||
+                            href.startsWith(
+                                "https://"
+                            )
+                        ) {
+
+                            event.preventDefault();
+
+
+                            navigateTo(
+                                href
+                            );
+
+                        }
+
                     }
-                }
-            );
-        });
-
-
-        const homeLinks =
-            browserPage.querySelectorAll(
-                "[data-browser-action='home']"
-            );
-
-
-        homeLinks.forEach(link => {
-
-            link.addEventListener(
-                "click",
-                function (event) {
-
-                    event.preventDefault();
-
-                    goHome();
-                }
-            );
-        });
-    }
-
-
-    // =================================================
-    // NAVIGATE TO URL
-    // =================================================
-
-    function navigateTo(
-        url,
-        options = {}
-    ) {
-
-        url =
-            normalizeUrl(url);
-
-
-        /*
-         * Handle search URLs.
-         */
-
-        if (
-            url.startsWith(
-                "http://northsearch.local/search"
-            )
-        ) {
-
-            try {
-
-                const parsed =
-                    new URL(url);
-
-                const query =
-                    parsed.searchParams.get(
-                        "q"
-                    );
-
-                state.currentUrl =
-                    url;
-
-                updateAddressBar(url);
-
-                if (!options.fromHistory) {
-
-                    recordHistory(url);
-
-                    saveHistory();
-                }
-
-                navigationSound();
-
-                renderSearchPage(
-                    query || ""
                 );
 
-                return;
-            }
-
-            catch (error) {
-
-                console.warn(
-                    "Could not parse search URL.",
-                    error
-                );
-            }
-        }
-
-
-        const site =
-            findWebsite(url);
-
-
-        state.currentUrl =
-            url;
-
-
-        updateAddressBar(
-            url
-        );
-
-
-        if (!options.fromHistory) {
-
-            recordHistory(
-                url
-            );
-
-            saveHistory();
-        }
-
-
-        navigationSound();
-
-
-        state.currentPage =
-            site;
-
-
-        renderPage(
-            site
-        );
-
-
-        /*
-         * Tell other systems that the browser changed.
-         */
-
-        document.dispatchEvent(
-            new CustomEvent(
-                "browserNavigated",
-                {
-                    detail: {
-                        url: url,
-                        site: site
-                    }
-                }
-            )
-        );
-    }
-
-
-    // =================================================
-    // HOME
-    // =================================================
-
-    function goHome() {
-
-        navigateTo(
-            HOME_URL
-        );
-    }
-
-
-    // =================================================
-    // BACK
-    // =================================================
-
-    function goBack() {
-
-        if (
-            state.historyIndex <= 0
-        ) {
-            return;
-        }
-
-
-        state.historyIndex--;
-
-
-        const url =
-            state.history[
-                state.historyIndex
-            ];
-
-
-        navigateTo(
-            url,
-            {
-                fromHistory: true
             }
         );
 
-
-        updateNavigationButtons();
     }
 
 
-    // =================================================
-    // FORWARD
-    // =================================================
+    /* =====================================================
+       ESCAPE HTML
+       ===================================================== */
 
-    function goForward() {
+    function escapeHtml(value) {
 
-        if (
-            state.historyIndex >=
-            state.history.length - 1
-        ) {
-            return;
-        }
-
-
-        state.historyIndex++;
-
-
-        const url =
-            state.history[
-                state.historyIndex
-            ];
-
-
-        navigateTo(
-            url,
-            {
-                fromHistory: true
-            }
+        return String(
+            value ?? ""
+        )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
         );
 
-
-        updateNavigationButtons();
     }
 
 
-    // =================================================
-    // RELOAD
-    // =================================================
-
-    function reload() {
-
-        if (!state.currentUrl) {
-            goHome();
-            return;
-        }
-
-
-        const site =
-            findWebsite(
-                state.currentUrl
-            );
-
-
-        if (
-            state.currentUrl.startsWith(
-                "http://northsearch.local/search"
-            )
-        ) {
-
-            try {
-
-                const parsed =
-                    new URL(
-                        state.currentUrl
-                    );
-
-                renderSearchPage(
-                    parsed.searchParams.get(
-                        "q"
-                    ) || ""
-                );
-
-            } catch (error) {
-
-                render404(
-                    state.currentUrl
-                );
-            }
-
-            return;
-        }
-
-
-        renderPage(
-            site
-        );
-
-
-        navigationSound();
-    }
-
-
-    // =================================================
-    // ADDRESS BAR SUBMIT
-    // =================================================
-
-    function submitAddress() {
-
-        if (!addressBar) {
-            return;
-        }
-
-
-        let value =
-            addressBar.value.trim();
-
-
-        if (!value) {
-            return;
-        }
-
-
-        /*
-         * If the user types something that doesn't look
-         * like a URL, treat it as a search.
-         */
-
-        const looksLikeUrl =
-            value.includes(".") ||
-            value.startsWith("http://") ||
-            value.startsWith("https://");
-
-
-        if (!looksLikeUrl) {
-
-            performSearch(
-                value
-            );
-
-            return;
-        }
-
-
-        navigateTo(
-            value
-        );
-    }
-
-
-    // =================================================
-    // OPEN BROWSER
-    // =================================================
+    /* =====================================================
+       OPEN BROWSER
+       ===================================================== */
 
     function openBrowser(
-        url = null
+        url
     ) {
 
-        if (!browserWindow) {
+        if (!initialized) {
+
             initialize();
+
         }
 
 
         if (!browserWindow) {
+
             console.warn(
-                "Browser window not found."
+                "[Browser] Browser window not found."
             );
 
             return;
+
         }
 
 
         /*
-         * Use the window manager if available.
-         */
+           IMPORTANT:
+
+           The old code used:
+
+               windowManager.open(browserWindow)
+
+           That object does not exist.
+
+           Project Untitled's actual manager is:
+
+               WindowManager.open("browserWindow")
+        */
 
         if (
-            typeof windowManager !==
-            "undefined" &&
-            windowManager.open
+            typeof WindowManager !==
+                "undefined" &&
+            typeof WindowManager.open ===
+                "function"
         ) {
 
-            windowManager.open(
-                browserWindow
+            WindowManager.open(
+                "browserWindow"
             );
 
         } else {
 
             browserWindow.style.display =
                 "block";
+
         }
 
 
-        if (url) {
+        if (
+            typeof url ===
+            "string" &&
+            url.trim()
+        ) {
 
             navigateTo(
                 url
             );
 
-        } else if (!state.currentUrl) {
+        } else if (
+            currentUrl ===
+            HOME_URL
+        ) {
 
-            goHome();
+            renderHomePage();
 
-        } else {
-
-            updateAddressBar(
-                state.currentUrl
-            );
-
-            const site =
-                findWebsite(
-                    state.currentUrl
-                );
-
-            renderPage(
-                site
-            );
         }
+
     }
 
 
-    // =================================================
-    // INITIALIZE
-    // =================================================
+    /* =====================================================
+       OPEN URL FROM HISTORY
+       ===================================================== */
 
-    function initialize() {
+    function handleHistoryOpen(
+        event
+    ) {
 
-        if (state.initialized) {
+        const detail =
+            event.detail;
+
+
+        if (!detail) {
             return;
         }
 
 
-        state.initialized = true;
+        const url =
+            typeof detail ===
+            "string"
+                ? detail
+                : detail.url;
 
 
-        // ---------------------------------------------
-        // FIND BROWSER WINDOW
-        // ---------------------------------------------
+        if (!url) {
+            return;
+        }
+
+
+        openBrowser(
+            url
+        );
+
+    }
+
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    function initialize() {
+
+        if (initialized) {
+            return;
+        }
+
 
         browserWindow =
-            getElement([
-                "#browserWindow",
-                ".browser-window"
-            ]);
+            document.getElementById(
+                "browserWindow"
+            );
+
+        addressBar =
+            document.getElementById(
+                "browserAddress"
+            );
+
+        browserPage =
+            document.getElementById(
+                "browserPage"
+            );
+
+
+        backButton =
+            document.getElementById(
+                "browserBack"
+            );
+
+        forwardButton =
+            document.getElementById(
+                "browserForward"
+            );
+
+        refreshButton =
+            document.getElementById(
+                "browserRefresh"
+            );
+
+        homeButton =
+            document.getElementById(
+                "browserHome"
+            );
+
+        goButton =
+            document.getElementById(
+                "browserGo"
+            );
 
 
         if (!browserWindow) {
 
             console.warn(
-                "Browser window element not found."
+                "[Browser] #browserWindow not found."
             );
 
             return;
+
         }
 
 
-        // ---------------------------------------------
-        // FIND CONTROLS
-        // ---------------------------------------------
-
-        addressBar =
-            getElement([
-                "#browserAddress",
-                "#addressBar",
-                "#browserUrl",
-                ".browser-toolbar input"
-            ]);
-
-
-        browserPage =
-            getElement([
-                "#browserPage",
-                ".browser-page"
-            ]);
-
-
-        const buttons =
-            browserWindow.querySelectorAll(
-                ".browser-toolbar button"
-            );
+        loadNavigationHistory();
 
 
         /*
-         * First four toolbar buttons are expected to
-         * be:
-         *
-         * Back
-         * Forward
-         * Reload
-         * Home
-         *
-         * We also support IDs when available.
-         */
+           Start at the North Ridge home page.
+        */
 
-        backButton =
-            getElement([
-                "#browserBack",
-                "#backButton"
-            ]);
+        currentUrl =
+            HOME_URL;
 
 
-        forwardButton =
-            getElement([
-                "#browserForward",
-                "#forwardButton"
-            ]);
+        if (addressBar) {
 
+            addressBar.value =
+                HOME_URL;
 
-        reloadButton =
-            getElement([
-                "#browserReload",
-                "#reloadButton"
-            ]);
-
-
-        homeButton =
-            getElement([
-                "#browserHome",
-                "#homeButton"
-            ]);
-
-
-        if (!backButton && buttons[0]) {
-            backButton = buttons[0];
-        }
-
-        if (!forwardButton && buttons[1]) {
-            forwardButton = buttons[1];
-        }
-
-        if (!reloadButton && buttons[2]) {
-            reloadButton = buttons[2];
-        }
-
-        if (!homeButton && buttons[3]) {
-            homeButton = buttons[3];
         }
 
 
-        // ---------------------------------------------
-        // BUTTON EVENTS
-        // ---------------------------------------------
+        renderHomePage();
+
+
+        /* =================================================
+           TOOLBAR EVENTS
+           ================================================= */
 
         if (backButton) {
 
@@ -1421,6 +1562,7 @@
                 "click",
                 goBack
             );
+
         }
 
 
@@ -1430,15 +1572,17 @@
                 "click",
                 goForward
             );
+
         }
 
 
-        if (reloadButton) {
+        if (refreshButton) {
 
-            reloadButton.addEventListener(
+            refreshButton.addEventListener(
                 "click",
                 reload
             );
+
         }
 
 
@@ -1448,12 +1592,19 @@
                 "click",
                 goHome
             );
+
         }
 
 
-        // ---------------------------------------------
-        // ADDRESS BAR
-        // ---------------------------------------------
+        if (goButton) {
+
+            goButton.addEventListener(
+                "click",
+                submitAddress
+            );
+
+        }
+
 
         if (addressBar) {
 
@@ -1462,152 +1613,126 @@
                 function (event) {
 
                     if (
-                        event.key === "Enter"
+                        event.key ===
+                        "Enter"
                     ) {
 
                         event.preventDefault();
 
                         submitAddress();
+
                     }
+
                 }
             );
+
         }
 
 
-        // ---------------------------------------------
-        // LOAD SAVED HISTORY
-        // ---------------------------------------------
-
-        loadHistory();
-
-
-        // ---------------------------------------------
-        // INITIAL PAGE
-        // ---------------------------------------------
-
-        state.currentUrl =
-            HOME_URL;
-
-
-        updateAddressBar(
-            HOME_URL
-        );
-
-
-        renderPage(
-            findWebsite(
-                HOME_URL
-            )
-        );
-
-
-        // ---------------------------------------------
-        // GLOBAL BROWSER EVENTS
-        // ---------------------------------------------
+        /*
+           History application can ask the
+           Browser to open a specific URL.
+        */
 
         document.addEventListener(
             "openBrowserUrl",
-            function (event) {
+            handleHistoryOpen
+        );
 
-                if (
-                    event.detail &&
-                    event.detail.url
-                ) {
 
-                    openBrowser(
-                        event.detail.url
-                    );
-                }
+        initialized = true;
+
+
+        console.log(
+            "[Browser] Initialized."
+        );
+
+    }
+
+
+    /* =====================================================
+       PUBLIC API
+       ===================================================== */
+
+    const BrowserAPI = {
+
+        init:
+            initialize,
+
+        open:
+            openBrowser,
+
+        navigate:
+            navigateTo,
+
+        back:
+            goBack,
+
+        forward:
+            goForward,
+
+        home:
+            goHome,
+
+        reload:
+            reload,
+
+        search:
+            performSearch,
+
+        getCurrentUrl:
+            function () {
+
+                return currentUrl;
+
+            },
+
+        getHistory:
+            function () {
+
+                return [
+                    ...navigationHistory
+                ];
+
+            },
+
+        getCurrentPage:
+            function () {
+
+                return currentPage;
+
             }
-        );
-
-
-        document.addEventListener(
-            "browserGoBack",
-            goBack
-        );
-
-
-        document.addEventListener(
-            "browserGoForward",
-            goForward
-        );
-
-
-        document.addEventListener(
-            "browserGoHome",
-            goHome
-        );
-
-
-        document.addEventListener(
-            "browserReload",
-            reload
-        );
-
-
-        updateNavigationButtons();
-    }
-
-
-    // =================================================
-    // DOM READY
-    // =================================================
-
-    if (
-        document.readyState ===
-        "loading"
-    ) {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            initialize
-        );
-
-    } else {
-
-        initialize();
-    }
-
-
-    // =================================================
-    // PUBLIC BROWSER API
-    // =================================================
-
-    window.BrowserApp = {
-
-        open: openBrowser,
-
-        navigate: navigateTo,
-
-        back: goBack,
-
-        forward: goForward,
-
-        home: goHome,
-
-        reload: reload,
-
-        search: performSearch,
-
-        getCurrentUrl: function () {
-
-            return state.currentUrl;
-        },
-
-        getHistory: function () {
-
-            return [
-                ...state.history
-            ];
-        },
-
-        getCurrentPage: function () {
-
-            return state.currentPage;
-        }
 
     };
+
+
+    /*
+       Primary API.
+    */
+
+    window.Browser =
+        BrowserAPI;
+
+
+    /*
+       Backwards compatibility.
+
+       Anything from the previous Build 2 code
+       still calling BrowserApp will continue working.
+    */
+
+    window.BrowserApp =
+        BrowserAPI;
+
+
+    /* =====================================================
+       AUTOMATIC INITIALIZATION
+       ===================================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initialize
+    );
 
 
 })();

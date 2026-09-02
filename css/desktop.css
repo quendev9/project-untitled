@@ -343,3 +343,156 @@
     }
 
 }
+
+/* =========================================================
+   PROJECT UNTITLED
+   BOOT SCREEN
+   ========================================================= */
+
+/*
+   The boot screen intentionally lives above the desktop.
+   The desktop itself remains hidden until boot.js finishes.
+*/
+
+#bootScreen {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #000;
+    color: #fff;
+
+    z-index: 99999;
+
+    font-family:
+        "Courier New",
+        Courier,
+        monospace;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   BOOT CONTENT
+   ========================================================= */
+
+.boot-content {
+    width: min(520px, 80vw);
+
+    text-align: center;
+
+    user-select: none;
+}
+
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
+.boot-logo {
+    margin-bottom: 28px;
+
+    font-family:
+        "Courier New",
+        Courier,
+        monospace;
+
+    font-size: 26px;
+    font-weight: bold;
+
+    letter-spacing: 4px;
+
+    color: #fff;
+
+    text-transform: uppercase;
+}
+
+
+/* =========================================================
+   STATUS TEXT
+   ========================================================= */
+
+.boot-text {
+    margin-bottom: 12px;
+
+    font-size: 14px;
+
+    line-height: 1.4;
+
+    color: #fff;
+}
+
+
+/* =========================================================
+   PROGRESS BAR
+   ========================================================= */
+
+.boot-progress {
+    width: 100%;
+    height: 16px;
+
+    box-sizing: border-box;
+
+    background: #111;
+
+    border: 1px solid #fff;
+
+    overflow: hidden;
+}
+
+
+#bootProgress {
+    width: 0%;
+    height: 100%;
+
+    background: #fff;
+
+    transition:
+        width 0.08s linear;
+}
+
+/* =========================================================
+   SECONDARY STATUS
+   ========================================================= */
+
+.boot-status {
+    margin-top: 10px;
+
+    min-height: 16px;
+
+    font-size: 12px;
+
+    color: #aaa;
+
+    letter-spacing: 1px;
+}
+
+
+/* =========================================================
+   BOOT SCREEN RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .boot-content {
+        width: 82vw;
+    }
+
+    .boot-logo {
+        font-size: 20px;
+        letter-spacing: 3px;
+    }
+
+    .boot-text {
+        font-size: 12px;
+    }
+
+    .boot-status {
+        font-size: 10px;
+    }
+
+}

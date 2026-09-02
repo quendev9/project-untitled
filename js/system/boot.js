@@ -1,16 +1,16 @@
-// =====================================================
-// PROJECT UNTITLED
-// SYSTEM — BOOT
-// =====================================================
+/* =========================================================
+   PROJECT UNTITLED
+   SYSTEM — BOOT
+   ========================================================= */
 
 (function () {
 
     "use strict";
 
 
-    // =================================================
-    // ELEMENTS
-    // =================================================
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
 
     const bootScreen =
         document.getElementById("bootScreen");
@@ -22,12 +22,12 @@
         document.getElementById("bootProgress");
 
     const bootStatus =
-        document.getElementById("bootStatus");
+        document.querySelector(".boot-status");
 
 
-    // =================================================
-    // BOOT SETTINGS
-    // =================================================
+    /* =====================================================
+       BOOT MESSAGES
+       ===================================================== */
 
     const bootMessages = [
 
@@ -43,20 +43,24 @@
     ];
 
 
+    /* =====================================================
+       CONFIGURATION
+       ===================================================== */
+
     const bootDuration = 3500;
 
 
-    // =================================================
-    // STATE
-    // =================================================
+    /* =====================================================
+       STATE
+       ===================================================== */
 
     let bootStarted = false;
     let bootFinished = false;
 
 
-    // =================================================
-    // UPDATE STATUS
-    // =================================================
+    /* =====================================================
+       UPDATE STATUS
+       ===================================================== */
 
     function updateStatus(message) {
 
@@ -64,13 +68,15 @@
             return;
         }
 
-        bootStatus.textContent = message;
+        bootStatus.textContent =
+            message;
+
     }
 
 
-    // =================================================
-    // UPDATE PROGRESS
-    // =================================================
+    /* =====================================================
+       UPDATE PROGRESS
+       ===================================================== */
 
     function updateProgress(percent) {
 
@@ -81,17 +87,39 @@
         const safePercent =
             Math.max(
                 0,
-                Math.min(100, percent)
+                Math.min(
+                    100,
+                    percent
+                )
             );
 
         bootProgress.style.width =
             `${safePercent}%`;
+
     }
 
 
-    // =================================================
-    // FINISH BOOT
-    // =================================================
+    /* =====================================================
+       START BOOT SOUND
+       ===================================================== */
+
+    function playBootSound() {
+
+        if (
+            typeof SoundSystem !== "undefined" &&
+            typeof SoundSystem.boot === "function"
+        ) {
+
+            SoundSystem.boot();
+
+        }
+
+    }
+
+
+    /* =====================================================
+       FINISH BOOT
+       ===================================================== */
 
     function finishBoot() {
 
@@ -102,10 +130,7 @@
         bootFinished = true;
 
         updateProgress(100);
-
-        updateStatus(
-            "System ready."
-        );
+        updateStatus("System ready.");
 
 
         setTimeout(function () {
@@ -126,10 +151,6 @@
             }
 
 
-            // -----------------------------------------
-            // SYSTEM READY EVENT
-            // -----------------------------------------
-
             document.dispatchEvent(
                 new CustomEvent("systemReady")
             );
@@ -140,15 +161,79 @@
     }
 
 
-    // =================================================
-    // START BOOT
-    // =================================================
+    /* =====================================================
+       BOOT LOOP
+       ===================================================== */
+
+    function runBootLoop(startTime) {
+
+        if (bootFinished) {
+            return;
+        }
+
+
+        const elapsed =
+            Date.now() - startTime;
+
+
+        const progress =
+            Math.min(
+                elapsed / bootDuration,
+                1
+            );
+
+
+        const percentage =
+            progress * 100;
+
+
+        updateProgress(
+            percentage
+        );
+
+
+        const messageIndex =
+            Math.min(
+                Math.floor(
+                    progress *
+                    bootMessages.length
+                ),
+                bootMessages.length - 1
+            );
+
+
+        updateStatus(
+            bootMessages[messageIndex]
+        );
+
+
+        if (progress >= 1) {
+
+            finishBoot();
+
+            return;
+
+        }
+
+
+        requestAnimationFrame(
+            function () {
+
+                runBootLoop(
+                    startTime
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       START BOOT
+       ===================================================== */
 
     function startBoot() {
-
-        // ---------------------------------------------
-        // PREVENT DOUBLE BOOT
-        // ---------------------------------------------
 
         if (bootStarted) {
             return;
@@ -157,9 +242,10 @@
         bootStarted = true;
 
 
-        // ---------------------------------------------
-        // INITIAL STATE
-        // ---------------------------------------------
+        /*
+           Make absolutely sure the boot screen
+           is visible before starting the sequence.
+        */
 
         if (bootScreen) {
 
@@ -168,6 +254,11 @@
 
         }
 
+
+        /*
+           The desktop must stay hidden while
+           the operating system is starting.
+        */
 
         if (desktop) {
 
@@ -178,105 +269,34 @@
 
 
         updateProgress(0);
-
         updateStatus(
             bootMessages[0]
         );
 
 
-        // ---------------------------------------------
-        // BOOT SOUND
-        // ---------------------------------------------
+        playBootSound();
 
-        if (
-            typeof playSound === "function"
-        ) {
-
-            playSound("boot");
-
-        }
-
-
-        // ---------------------------------------------
-        // BOOT TIMER
-        // ---------------------------------------------
 
         const startTime =
             Date.now();
 
 
-        function bootLoop() {
+        requestAnimationFrame(
+            function () {
 
-            const elapsed =
-                Date.now() - startTime;
-
-
-            const progress =
-                Math.min(
-                    elapsed / bootDuration,
-                    1
+                runBootLoop(
+                    startTime
                 );
-
-
-            const percent =
-                Math.floor(
-                    progress * 100
-                );
-
-
-            updateProgress(
-                percent
-            );
-
-
-            // -----------------------------------------
-            // BOOT MESSAGE
-            // -----------------------------------------
-
-            const messageIndex =
-                Math.min(
-                    Math.floor(
-                        progress *
-                        bootMessages.length
-                    ),
-                    bootMessages.length - 1
-                );
-
-
-            updateStatus(
-                bootMessages[messageIndex]
-            );
-
-
-            // -----------------------------------------
-            // CONTINUE / FINISH
-            // -----------------------------------------
-
-            if (progress < 1) {
-
-                requestAnimationFrame(
-                    bootLoop
-                );
-
-            } else {
-
-                finishBoot();
 
             }
-
-        }
-
-
-        requestAnimationFrame(
-            bootLoop
         );
 
     }
 
 
-    // =================================================
-    // PUBLIC API
-    // =================================================
+    /* =====================================================
+       PUBLIC API
+       ===================================================== */
 
     window.BootSystem = {
 
@@ -297,13 +317,14 @@
     };
 
 
-    // =================================================
-    // GLOBAL COMPATIBILITY API
-    // =================================================
+    /* =====================================================
+       AUTOMATIC START
+       ===================================================== */
 
-    window.startBoot =
-        startBoot;
+    document.addEventListener(
+        "DOMContentLoaded",
+        startBoot
+    );
 
 
 })();
-

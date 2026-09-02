@@ -1,85 +1,115 @@
-// =====================================================
-// PROJECT UNTITLED
-// APP — BROWSER HISTORY
-// =====================================================
+/* =========================================================
+   PROJECT UNTITLED
+   APPLICATION — BROWSER HISTORY
+   ========================================================= */
 
 (function () {
 
     "use strict";
 
 
-    // -------------------------------------------------
-    // ELEMENTS
-    // -------------------------------------------------
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
 
     const historyWindow =
-        document.getElementById("historyWindow");
+        document.getElementById(
+            "historyWindow"
+        );
 
     const historyList =
-        document.getElementById("browserHistoryList");
+        document.getElementById(
+            "browserHistoryList"
+        );
 
     const historyCount =
-        document.getElementById("historyCount");
+        document.getElementById(
+            "historyCount"
+        );
 
     const clearHistoryButton =
-        document.getElementById("clearHistory");
+        document.getElementById(
+            "clearHistory"
+        );
 
 
-    // -------------------------------------------------
-    // STATE
-    // -------------------------------------------------
-
-    let historyEntries = [];
-
-
-    // -------------------------------------------------
-    // STORAGE KEY
-    // -------------------------------------------------
+    /* =====================================================
+       STORAGE
+       ===================================================== */
 
     const STORAGE_KEY =
         "projectUntitled_browserHistory";
 
 
-    // -------------------------------------------------
-    // LOAD HISTORY
-    // -------------------------------------------------
+    /* =====================================================
+       STATE
+       ===================================================== */
+
+    let historyEntries = [];
+
+
+    /* =====================================================
+       LOAD HISTORY
+       ===================================================== */
 
     function loadHistory() {
 
         try {
 
-            const saved =
-                localStorage.getItem(STORAGE_KEY);
+            const stored =
+                localStorage.getItem(
+                    STORAGE_KEY
+                );
 
-            if (!saved) {
+
+            if (!stored) {
+
                 historyEntries = [];
+
                 return;
+
             }
 
-            const parsed =
-                JSON.parse(saved);
 
-            if (Array.isArray(parsed)) {
-                historyEntries = parsed;
+            const parsed =
+                JSON.parse(
+                    stored
+                );
+
+
+            if (
+                Array.isArray(
+                    parsed
+                )
+            ) {
+
+                historyEntries =
+                    parsed;
+
             } else {
+
                 historyEntries = [];
+
             }
 
         } catch (error) {
 
-            console.error(
-                "HistorySystem: Failed to load history.",
+            console.warn(
+                "[History] Could not load history.",
                 error
             );
 
+
             historyEntries = [];
+
         }
+
     }
 
 
-    // -------------------------------------------------
-    // SAVE HISTORY
-    // -------------------------------------------------
+    /* =====================================================
+       SAVE HISTORY
+       ===================================================== */
 
     function saveHistory() {
 
@@ -87,22 +117,26 @@
 
             localStorage.setItem(
                 STORAGE_KEY,
-                JSON.stringify(historyEntries)
+                JSON.stringify(
+                    historyEntries
+                )
             );
 
         } catch (error) {
 
-            console.error(
-                "HistorySystem: Failed to save history.",
+            console.warn(
+                "[History] Could not save history.",
                 error
             );
+
         }
+
     }
 
 
-    // -------------------------------------------------
-    // ADD HISTORY ENTRY
-    // -------------------------------------------------
+    /* =====================================================
+       ADD HISTORY ENTRY
+       ===================================================== */
 
     function addEntry(site) {
 
@@ -112,19 +146,12 @@
 
 
         /*
-         * A site can be supplied in different formats.
-         *
-         * Example:
-         *
-         * {
-         *     id: "north-ridge-news",
-         *     title: "North Ridge News",
-         *     url: "northridge.local/news"
-         * }
-         *
-         * The important part is that the browser can
-         * identify the site later.
-         */
+           Browser sends us a normalized history
+           record.
+
+           We still support a raw website object
+           for backwards compatibility.
+        */
 
         const entry = {
 
@@ -133,11 +160,13 @@
                 site.siteId ||
                 site.slug ||
                 site.url ||
-                site.title,
+                site.title ||
+                Date.now(),
 
             title:
                 site.title ||
                 site.name ||
+                site.url ||
                 "Unknown Website",
 
             url:
@@ -147,45 +176,59 @@
                 "",
 
             timestamp:
+                site.timestamp ||
                 Date.now()
+
         };
 
 
-        // -------------------------------------------------
-        // REMOVE DUPLICATE CURRENT ENTRY
-        // -------------------------------------------------
+        if (!entry.url) {
+            return;
+        }
+
+
+        /*
+           If the same website is visited again,
+           remove the previous copy first.
+        */
 
         historyEntries =
-            historyEntries.filter(function (existing) {
+            historyEntries.filter(
+                function (existing) {
 
-                return existing.id !== entry.id;
+                    return (
+                        existing.id !==
+                        entry.id
+                    );
 
-            });
-
-
-        // -------------------------------------------------
-        // ADD TO TOP
-        // -------------------------------------------------
-
-        historyEntries.unshift(entry);
+                }
+            );
 
 
-        // -------------------------------------------------
-        // LIMIT HISTORY
-        // -------------------------------------------------
+        /*
+           Newest entries appear first.
+        */
 
-        const MAX_HISTORY_ENTRIES = 50;
+        historyEntries.unshift(
+            entry
+        );
+
+
+        /*
+           Keep the history manageable.
+        */
 
         if (
             historyEntries.length >
-            MAX_HISTORY_ENTRIES
+            50
         ) {
 
             historyEntries =
                 historyEntries.slice(
                     0,
-                    MAX_HISTORY_ENTRIES
+                    50
                 );
+
         }
 
 
@@ -193,131 +236,22 @@
         renderHistory();
 
 
-        // Notify other systems.
         document.dispatchEvent(
             new CustomEvent(
                 "historyUpdated",
                 {
-                    detail: entry
+                    detail:
+                        entry
                 }
             )
         );
+
     }
 
 
-    // -------------------------------------------------
-    // FORMAT TIME
-    // -------------------------------------------------
-
-    function formatTime(timestamp) {
-
-        if (!timestamp) {
-            return "";
-        }
-
-        const date =
-            new Date(timestamp);
-
-        return date.toLocaleString(
-            [],
-            {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            }
-        );
-    }
-
-
-    // -------------------------------------------------
-    // CREATE HISTORY ENTRY
-    // -------------------------------------------------
-
-    function createHistoryElement(entry) {
-
-        const element =
-            document.createElement("div");
-
-        element.className =
-            "history-entry";
-
-
-        // -------------------------------------------------
-        // TITLE
-        // -------------------------------------------------
-
-        const title =
-            document.createElement("div");
-
-        title.className =
-            "history-entry-title";
-
-        title.textContent =
-            entry.title ||
-            "Unknown Website";
-
-
-        // -------------------------------------------------
-        // URL
-        // -------------------------------------------------
-
-        const url =
-            document.createElement("div");
-
-        url.className =
-            "history-entry-url";
-
-        url.textContent =
-            entry.url ||
-            "unknown://";
-
-
-        // -------------------------------------------------
-        // TIME
-        // -------------------------------------------------
-
-        const time =
-            document.createElement("div");
-
-        time.className =
-            "history-entry-time";
-
-        time.textContent =
-            formatTime(entry.timestamp);
-
-
-        // -------------------------------------------------
-        // BUILD
-        // -------------------------------------------------
-
-        element.appendChild(title);
-        element.appendChild(url);
-        element.appendChild(time);
-
-
-        // -------------------------------------------------
-        // CLICK
-        // -------------------------------------------------
-
-        element.addEventListener(
-            "click",
-            function () {
-
-                openHistoryEntry(entry);
-
-            }
-        );
-
-
-        return element;
-    }
-
-
-    // -------------------------------------------------
-    // RENDER HISTORY
-    // -------------------------------------------------
+    /* =====================================================
+       RENDER HISTORY
+       ===================================================== */
 
     function renderHistory() {
 
@@ -326,151 +260,283 @@
         }
 
 
-        // Clear existing content.
-        historyList.innerHTML = "";
+        historyList.innerHTML =
+            "";
 
 
-        // Empty state.
-        if (historyEntries.length === 0) {
+        if (!historyEntries.length) {
 
             const empty =
-                document.createElement("div");
+                document.createElement(
+                    "div"
+                );
+
 
             empty.className =
                 "history-empty";
 
+
             empty.textContent =
                 "No browsing history.";
 
-            historyList.appendChild(empty);
 
-            updateHistoryCount();
+            historyList.appendChild(
+                empty
+            );
+
+
+            updateCount();
 
             return;
+
         }
 
 
-        // Render entries.
         historyEntries.forEach(
             function (entry) {
 
-                const element =
-                    createHistoryElement(entry);
+                const item =
+                    document.createElement(
+                        "button"
+                    );
 
-                historyList.appendChild(element);
+
+                item.type =
+                    "button";
+
+
+                item.className =
+                    "history-entry";
+
+
+                item.dataset.url =
+                    entry.url;
+
+
+                const title =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                title.className =
+                    "history-entry-title";
+
+
+                title.textContent =
+                    entry.title ||
+                    entry.url;
+
+
+                const url =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                url.className =
+                    "history-entry-url";
+
+
+                url.textContent =
+                    entry.url;
+
+
+                const time =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                time.className =
+                    "history-entry-time";
+
+
+                time.textContent =
+                    formatTimestamp(
+                        entry.timestamp
+                    );
+
+
+                item.appendChild(
+                    title
+                );
+
+                item.appendChild(
+                    url
+                );
+
+                item.appendChild(
+                    time
+                );
+
+
+                item.addEventListener(
+                    "click",
+                    function () {
+
+                        openHistoryEntry(
+                            entry
+                        );
+
+                    }
+                );
+
+
+                historyList.appendChild(
+                    item
+                );
 
             }
         );
 
 
-        updateHistoryCount();
+        updateCount();
+
     }
 
 
-    // -------------------------------------------------
-    // UPDATE HISTORY COUNT
-    // -------------------------------------------------
+    /* =====================================================
+       FORMAT TIMESTAMP
+       ===================================================== */
 
-    function updateHistoryCount() {
+    function formatTimestamp(
+        timestamp
+    ) {
+
+        if (!timestamp) {
+            return "";
+        }
+
+
+        const date =
+            new Date(
+                timestamp
+            );
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return "";
+
+        }
+
+
+        return date.toLocaleString();
+
+    }
+
+
+    /* =====================================================
+       UPDATE COUNT
+       ===================================================== */
+
+    function updateCount() {
 
         if (!historyCount) {
             return;
         }
 
+
         const count =
             historyEntries.length;
 
+
         historyCount.textContent =
-            `${count} ${count === 1 ? "entry" : "entries"}`;
+            `${count} ${
+                count === 1
+                    ? "entry"
+                    : "entries"
+            }`;
+
     }
 
 
-    // -------------------------------------------------
-    // OPEN HISTORY ENTRY
-    // -------------------------------------------------
+    /* =====================================================
+       OPEN HISTORY ENTRY
+       ===================================================== */
 
-    function openHistoryEntry(entry) {
+    function openHistoryEntry(
+        entry
+    ) {
 
         if (!entry) {
             return;
         }
 
 
+        if (!entry.url) {
+            return;
+        }
+
+
         /*
-         * IMPORTANT:
-         *
-         * We do NOT send the user to an actual URL.
-         *
-         * Project Untitled uses a FAKE INTERNET.
-         *
-         * Therefore the history system asks the browser
-         * application to open the fake website.
-         */
+           Ask Browser to open the URL.
+
+           Browser listens for this event.
+        */
 
         document.dispatchEvent(
             new CustomEvent(
-                "openHistorySite",
+                "openBrowserUrl",
                 {
-                    detail: entry
+                    detail: {
+
+                        url:
+                            entry.url
+
+                    }
+
                 }
             )
         );
 
 
-        // Close history window if the window manager
-        // provides the appropriate function.
+        /*
+           Close the History window.
+        */
+
         if (
-            typeof closeWindow === "function"
-        ) {
-
-            closeWindow("historyWindow");
-
-        }
-
-
-        // Also support the WindowManager API.
-        if (
-            window.WindowManager &&
-            typeof window.WindowManager.close ===
+            typeof WindowManager !==
+                "undefined" &&
+            typeof WindowManager.close ===
                 "function"
         ) {
 
-            window.WindowManager.close(
+            WindowManager.close(
                 "historyWindow"
             );
-        }
 
-
-        // Play navigation sound.
-        if (
-            typeof playSound === "function"
+        } else if (
+            historyWindow
         ) {
 
-            playSound("navigate");
+            historyWindow.style.display =
+                "none";
 
         }
+
+
+        playNavigateSound();
+
     }
 
 
-    // -------------------------------------------------
-    // CLEAR HISTORY
-    // -------------------------------------------------
+    /* =====================================================
+       CLEAR HISTORY
+       ===================================================== */
 
     function clearHistory() {
 
         historyEntries = [];
 
+
         saveHistory();
         renderHistory();
-
-
-        if (
-            typeof playSound === "function"
-        ) {
-
-            playSound("delete");
-
-        }
 
 
         document.dispatchEvent(
@@ -478,85 +544,170 @@
                 "historyCleared"
             )
         );
+
+
+        playDeleteSound();
+
     }
 
 
-    // -------------------------------------------------
-    // OPEN HISTORY WINDOW
-    // -------------------------------------------------
+    /* =====================================================
+       OPEN HISTORY WINDOW
+       ===================================================== */
 
     function openHistory() {
 
         if (!historyWindow) {
+
+            console.warn(
+                "[History] #historyWindow not found."
+            );
+
             return;
+
         }
 
 
-        /*
-         * Prefer the centralized WindowManager.
-         */
-
         if (
-            window.WindowManager &&
-            typeof window.WindowManager.open ===
+            typeof WindowManager !==
+                "undefined" &&
+            typeof WindowManager.open ===
                 "function"
         ) {
 
-            window.WindowManager.open(
+            WindowManager.open(
                 "historyWindow"
             );
 
         } else {
 
-            // Fallback in case WindowManager is unavailable.
             historyWindow.style.display =
                 "block";
+
         }
 
 
         renderHistory();
+
     }
 
 
-    // -------------------------------------------------
-    // LISTEN FOR BROWSER NAVIGATION
-    // -------------------------------------------------
+    /* =====================================================
+       CLOSE HISTORY WINDOW
+       ===================================================== */
+
+    function closeHistory() {
+
+        if (
+            typeof WindowManager !==
+                "undefined" &&
+            typeof WindowManager.close ===
+                "function"
+        ) {
+
+            WindowManager.close(
+                "historyWindow"
+            );
+
+            return;
+
+        }
+
+
+        if (historyWindow) {
+
+            historyWindow.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       SOUND HELPERS
+       ===================================================== */
+
+    function playNavigateSound() {
+
+        if (
+            typeof SoundSystem !==
+                "undefined" &&
+            typeof SoundSystem.navigate ===
+                "function"
+        ) {
+
+            SoundSystem.navigate();
+
+        }
+
+    }
+
+
+    function playDeleteSound() {
+
+        if (
+            typeof SoundSystem !==
+                "undefined" &&
+            typeof SoundSystem.delete ===
+                "function"
+        ) {
+
+            SoundSystem.delete();
+
+        }
+
+    }
+
+
+    /* =====================================================
+       BROWSER VISIT EVENT
+       ===================================================== */
 
     document.addEventListener(
         "browserVisited",
         function (event) {
 
-            if (!event.detail) {
-                return;
-            }
+            if (
+                event.detail
+            ) {
 
-            addEntry(event.detail);
+                addEntry(
+                    event.detail
+                );
+
+            }
 
         }
     );
 
 
-    // -------------------------------------------------
-    // ALTERNATIVE NAVIGATION EVENT
-    // -------------------------------------------------
+    /*
+       Backwards compatibility with older
+       game systems.
+    */
 
     document.addEventListener(
         "siteVisited",
         function (event) {
 
-            if (!event.detail) {
-                return;
-            }
+            if (
+                event.detail
+            ) {
 
-            addEntry(event.detail);
+                addEntry(
+                    event.detail
+                );
+
+            }
 
         }
     );
 
 
-    // -------------------------------------------------
-    // CLEAR BUTTON
-    // -------------------------------------------------
+    /* =====================================================
+       CLEAR BUTTON
+       ===================================================== */
 
     if (clearHistoryButton) {
 
@@ -568,9 +719,9 @@
     }
 
 
-    // -------------------------------------------------
-    // INITIALIZE
-    // -------------------------------------------------
+    /* =====================================================
+       INITIAL LOAD
+       ===================================================== */
 
     loadHistory();
 
@@ -586,33 +737,74 @@
     );
 
 
-    // -------------------------------------------------
-    // PUBLIC API
-    // -------------------------------------------------
+    /* =====================================================
+       PUBLIC API
+       ===================================================== */
 
-    window.HistorySystem = {
+    const HistoryAPI = {
 
-        open: openHistory,
+        init:
+            function () {
 
-        add: addEntry,
+                loadHistory();
+                renderHistory();
 
-        clear: clearHistory,
+            },
 
-        render: renderHistory,
+        open:
+            openHistory,
 
-        getAll: function () {
+        close:
+            closeHistory,
 
-            return [...historyEntries];
+        add:
+            addEntry,
 
-        },
+        clear:
+            clearHistory,
 
-        getCount: function () {
+        render:
+            renderHistory,
 
-            return historyEntries.length;
+        getAll:
+            function () {
 
-        }
+                return [
+                    ...historyEntries
+                ];
+
+            },
+
+        getCount:
+            function () {
+
+                return historyEntries.length;
+
+            }
 
     };
+
+
+    /*
+       Official Build 3 API.
+    */
+
+    window.History =
+        HistoryAPI;
+
+
+    /*
+       Backwards compatibility.
+    */
+
+    window.HistorySystem =
+        HistoryAPI;
+
+    window.HistoryApp =
+        HistoryAPI;
+
+    window.BrowserHistory =
+        HistoryAPI;
 
 
 })();

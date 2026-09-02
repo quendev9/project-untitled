@@ -1,398 +1,511 @@
-// =====================================================
-// PROJECT UNTITLED
-// APP — MAIL
-// =====================================================
+/* =========================================================
+   PROJECT UNTITLED
+   APPLICATION — MAIL
+   ========================================================= */
 
 (function () {
 
     "use strict";
 
-    // -------------------------------------------------
-    // ELEMENTS
-    // -------------------------------------------------
+
+    /* =====================================================
+       ELEMENTS
+       ===================================================== */
 
     const mailWindow =
-        document.getElementById("mailWindow");
+        document.getElementById(
+            "mailWindow"
+        );
+
+    /*
+       IMPORTANT:
+
+       The HTML uses #emailList.
+
+       The old JavaScript searched for #mailList,
+       which caused the entire module to exit.
+    */
 
     const mailList =
-        document.getElementById("mailList");
-
-    const mailViewer =
-        document.getElementById("mailViewer");
-
-    const mailViewerTitle =
-        document.getElementById("mailViewerTitle");
-
-    const mailViewerFrom =
-        document.getElementById("mailViewerFrom");
-
-    const mailViewerDate =
-        document.getElementById("mailViewerDate");
-
-    const mailViewerBody =
-        document.getElementById("mailViewerBody");
-
-    const mailBackButton =
-        document.getElementById("mailBack");
-
-    const mailCloseButton =
-        document.getElementById("mailClose");
-
-
-    // -------------------------------------------------
-    // STATE
-    // -------------------------------------------------
-
-    let currentEmail = null;
-
-
-    // -------------------------------------------------
-    // CHECK REQUIRED ELEMENTS
-    // -------------------------------------------------
-
-    if (!mailWindow || !mailList) {
-
-        console.warn(
-            "Mail: required elements not found."
+        document.getElementById(
+            "emailList"
         );
 
-        return;
-    }
+
+    /* =====================================================
+       STATE
+       ===================================================== */
+
+    let currentEmail =
+        null;
+
+    let initialized =
+        false;
 
 
-    // -------------------------------------------------
-    // GET EMAIL DATA
-    // -------------------------------------------------
+    /* =====================================================
+       EMAIL DATA
+       ===================================================== */
 
-    function getEmailData() {
-
-        if (
-            typeof EMAILS !== "undefined" &&
-            Array.isArray(EMAILS)
-        ) {
-            return EMAILS;
-        }
-
-        if (
-            typeof emails !== "undefined" &&
-            Array.isArray(emails)
-        ) {
-            return emails;
-        }
+    function getEmails() {
 
         if (
-            typeof emailData !== "undefined" &&
-            Array.isArray(emailData)
+            Array.isArray(
+                window.emails
+            )
         ) {
-            return emailData;
+
+            return window.emails;
+
         }
 
-        console.warn(
-            "Mail: no email data found."
-        );
+
+        if (
+            Array.isArray(
+                window.Emails
+            )
+        ) {
+
+            return window.Emails;
+
+        }
+
+
+        if (
+            Array.isArray(
+                window.EMAILS
+            )
+        ) {
+
+            return window.EMAILS;
+
+        }
+
+
+        if (
+            Array.isArray(
+                window.EmailData
+            )
+        ) {
+
+            return window.EmailData;
+
+        }
+
 
         return [];
+
     }
 
 
-    // -------------------------------------------------
-    // OPEN MAIL
-    // -------------------------------------------------
+    /* =====================================================
+       CREATE VIEWER
+       ===================================================== */
 
-    function openMail() {
+    function createViewer() {
 
-        if (
-            typeof WindowManager !== "undefined" &&
-            typeof WindowManager.open === "function"
-        ) {
-
-            WindowManager.open(
-                "mailWindow"
-            );
-
-        } else {
-
-            mailWindow.style.display = "block";
-        }
-
-        renderInbox();
-
-        hideViewer();
-
-        playMailSound();
-    }
-
-
-    // -------------------------------------------------
-    // CLOSE MAIL
-    // -------------------------------------------------
-
-    function closeMail() {
-
-        if (
-            typeof WindowManager !== "undefined" &&
-            typeof WindowManager.close === "function"
-        ) {
-
-            WindowManager.close(
-                "mailWindow"
-            );
-
-        } else {
-
-            mailWindow.style.display = "none";
-        }
-
-        currentEmail = null;
-    }
-
-
-    // -------------------------------------------------
-    // PLAY MAIL SOUND
-    // -------------------------------------------------
-
-    function playMailSound() {
-
-        if (
-            typeof playSound === "function"
-        ) {
-
-            playSound("mail");
-        }
-    }
-
-
-    // -------------------------------------------------
-    // NORMALIZE EMAIL
-    // -------------------------------------------------
-
-    function normalizeEmail(email) {
-
-        if (!email) {
+        if (!mailWindow) {
             return null;
         }
 
-        return {
 
-            id:
-                email.id ||
-                email.emailId ||
-                email.name,
+        let viewer =
+            document.getElementById(
+                "mailViewer"
+            );
 
-            sender:
-                email.sender ||
-                email.from ||
-                "Unknown Sender",
 
-            subject:
-                email.subject ||
-                email.title ||
-                "(No Subject)",
+        /*
+           If the viewer already exists in
+           HTML, use it.
+        */
 
-            date:
-                email.date ||
-                email.time ||
-                "",
+        if (viewer) {
+            return viewer;
+        }
 
-            body:
-                email.body ||
-                email.message ||
-                "",
 
-            read:
-                Boolean(email.read),
+        /*
+           Otherwise create one dynamically.
 
-            important:
-                Boolean(email.important),
+           This lets us fix the broken Mail
+           system without forcing an HTML
+           restructure right now.
+        */
 
-            attachment:
-                email.attachment ||
-                null
+        viewer =
+            document.createElement(
+                "div"
+            );
 
-        };
+
+        viewer.id =
+            "mailViewer";
+
+
+        viewer.style.display =
+            "none";
+
+
+        viewer.style.height =
+            "100%";
+
+
+        viewer.style.boxSizing =
+            "border-box";
+
+
+        viewer.innerHTML = `
+
+            <div
+                class="mail-viewer-toolbar"
+                style="
+                    margin-bottom: 10px;
+                    display: flex;
+                    gap: 6px;
+                "
+            >
+
+                <button
+                    id="mailBack"
+                    type="button"
+                    class="win-button"
+                >
+                    Back
+                </button>
+
+            </div>
+
+
+            <div
+                class="mail-viewer-header"
+                style="
+                    border-bottom: 1px solid #808080;
+                    padding-bottom: 8px;
+                    margin-bottom: 10px;
+                "
+            >
+
+                <h2
+                    id="mailViewerTitle"
+                    style="
+                        margin: 0 0 8px 0;
+                        font-size: 18px;
+                    "
+                ></h2>
+
+
+                <div
+                    id="mailViewerFrom"
+                    style="
+                        margin-bottom: 4px;
+                    "
+                ></div>
+
+
+                <div
+                    id="mailViewerDate"
+                    style="
+                        color: #555;
+                        font-size: 12px;
+                    "
+                ></div>
+
+            </div>
+
+
+            <div
+                id="mailViewerBody"
+                style="
+                    white-space: pre-wrap;
+                    line-height: 1.5;
+                "
+            ></div>
+
+        `;
+
+
+        /*
+           Put the viewer into the same
+           window content area as the inbox.
+        */
+
+        const content =
+            mailWindow.querySelector(
+                ".window-content"
+            );
+
+
+        if (content) {
+
+            content.appendChild(
+                viewer
+            );
+
+        } else {
+
+            mailWindow.appendChild(
+                viewer
+            );
+
+        }
+
+
+        const backButton =
+            viewer.querySelector(
+                "#mailBack"
+            );
+
+
+        if (backButton) {
+
+            backButton.addEventListener(
+                "click",
+                backToInbox
+            );
+
+        }
+
+
+        return viewer;
+
     }
 
 
-    // -------------------------------------------------
-    // RENDER INBOX
-    // -------------------------------------------------
+    /* =====================================================
+       GET VIEWER ELEMENTS
+       ===================================================== */
+
+    function getViewerElements() {
+
+        const viewer =
+            createViewer();
+
+
+        if (!viewer) {
+            return null;
+        }
+
+
+        return {
+
+            viewer,
+
+            title:
+                document.getElementById(
+                    "mailViewerTitle"
+                ),
+
+            from:
+                document.getElementById(
+                    "mailViewerFrom"
+                ),
+
+            date:
+                document.getElementById(
+                    "mailViewerDate"
+                ),
+
+            body:
+                document.getElementById(
+                    "mailViewerBody"
+                )
+
+        };
+
+    }
+
+
+    /* =====================================================
+       RENDER INBOX
+       ===================================================== */
 
     function renderInbox() {
 
-        mailList.innerHTML = "";
-
-        const emails =
-            getEmailData();
-
-        if (emails.length === 0) {
-
-            renderEmptyInbox();
-
+        if (!mailList) {
             return;
         }
 
-        emails.forEach(
-            function (rawEmail, index) {
 
-                const email =
-                    normalizeEmail(rawEmail);
+        /*
+           Make sure the inbox is visible
+           and the viewer is hidden.
+        */
+
+        mailList.style.display =
+            "block";
+
+
+        const viewer =
+            document.getElementById(
+                "mailViewer"
+            );
+
+
+        if (viewer) {
+
+            viewer.style.display =
+                "none";
+
+        }
+
+
+        mailList.innerHTML =
+            "";
+
+
+        const emails =
+            getEmails();
+
+
+        if (!emails.length) {
+
+            const empty =
+                document.createElement(
+                    "div"
+                );
+
+
+            empty.className =
+                "mail-empty";
+
+
+            empty.textContent =
+                "No messages."
+
+
+            mailList.appendChild(
+                empty
+            );
+
+
+            return;
+
+        }
+
+
+        emails.forEach(
+            function (
+                email,
+                index
+            ) {
 
                 if (!email) {
                     return;
                 }
 
-                const element =
-                    createEmailElement(
-                        email,
-                        index
+
+                const item =
+                    document.createElement(
+                        "button"
                     );
 
+
+                item.type =
+                    "button";
+
+
+                item.className =
+                    "email-item";
+
+
+                /*
+                   Support several possible
+                   email data formats.
+                */
+
+                const subject =
+                    email.subject ||
+                    email.title ||
+                    "No subject";
+
+
+                const sender =
+                    email.from ||
+                    email.sender ||
+                    email.email ||
+                    "Unknown sender";
+
+
+                const preview =
+                    email.preview ||
+                    email.body ||
+                    email.content ||
+                    "";
+
+
+                const read =
+                    email.read === true;
+
+
+                if (!read) {
+
+                    item.classList.add(
+                        "unread"
+                    );
+
+                }
+
+
+                item.innerHTML = `
+
+                    <div
+                        class="email-sender"
+                    >
+                        ${escapeHtml(sender)}
+                    </div>
+
+                    <div
+                        class="email-subject"
+                    >
+                        ${escapeHtml(subject)}
+                    </div>
+
+                    <div
+                        class="email-preview"
+                    >
+                        ${escapeHtml(
+                            String(preview)
+                                .replace(
+                                    /\s+/g,
+                                    " "
+                                )
+                                .slice(
+                                    0,
+                                    120
+                                )
+                        )}
+                    </div>
+
+                `;
+
+
+                item.addEventListener(
+                    "click",
+                    function () {
+
+                        openEmail(
+                            email,
+                            index
+                        );
+
+                    }
+                );
+
+
                 mailList.appendChild(
-                    element
-                );
-            }
-        );
-    }
-
-
-    // -------------------------------------------------
-    // EMPTY INBOX
-    // -------------------------------------------------
-
-    function renderEmptyInbox() {
-
-        const empty =
-            document.createElement("div");
-
-        empty.className =
-            "mail-empty";
-
-        empty.textContent =
-            "No messages.";
-
-        mailList.appendChild(
-            empty
-        );
-    }
-
-
-    // -------------------------------------------------
-    // CREATE EMAIL ELEMENT
-    // -------------------------------------------------
-
-    function createEmailElement(
-        email,
-        index
-    ) {
-
-        const element =
-            document.createElement("div");
-
-        element.className =
-            "email";
-
-
-        // ---------------------------------------------
-        // UNREAD STATE
-        // ---------------------------------------------
-
-        if (!email.read) {
-
-            element.classList.add(
-                "unread"
-            );
-        }
-
-
-        // ---------------------------------------------
-        // IMPORTANT STATE
-        // ---------------------------------------------
-
-        if (email.important) {
-
-            element.classList.add(
-                "important"
-            );
-        }
-
-
-        // ---------------------------------------------
-        // SENDER
-        // ---------------------------------------------
-
-        const sender =
-            document.createElement("strong");
-
-        sender.textContent =
-            email.sender;
-
-
-        // ---------------------------------------------
-        // SUBJECT
-        // ---------------------------------------------
-
-        const subject =
-            document.createElement("span");
-
-        subject.textContent =
-            email.subject;
-
-
-        // ---------------------------------------------
-        // DATE
-        // ---------------------------------------------
-
-        const date =
-            document.createElement("span");
-
-        date.className =
-            "email-date";
-
-        date.textContent =
-            email.date;
-
-
-        // ---------------------------------------------
-        // APPEND
-        // ---------------------------------------------
-
-        element.appendChild(
-            sender
-        );
-
-        element.appendChild(
-            subject
-        );
-
-        element.appendChild(
-            date
-        );
-
-
-        // ---------------------------------------------
-        // CLICK
-        // ---------------------------------------------
-
-        element.addEventListener(
-            "click",
-            function () {
-
-                openEmail(
-                    email,
-                    index
+                    item
                 );
 
             }
         );
 
-
-        return element;
     }
 
 
-    // -------------------------------------------------
-    // OPEN EMAIL
-    // -------------------------------------------------
+    /* =====================================================
+       OPEN EMAIL
+       ===================================================== */
 
     function openEmail(
         email,
@@ -403,323 +516,387 @@
             return;
         }
 
+
         currentEmail =
             email;
 
-        // ---------------------------------------------
-        // SOUND
-        // ---------------------------------------------
+
+        /*
+           If only an index was provided,
+           retrieve the email from the data.
+        */
 
         if (
-            typeof playSound === "function"
+            !currentEmail &&
+            typeof index ===
+            "number"
         ) {
 
-            playSound("open");
+            const emails =
+                getEmails();
+
+
+            currentEmail =
+                emails[index] ||
+                null;
+
         }
 
 
-        // ---------------------------------------------
-        // MARK AS READ
-        // ---------------------------------------------
-
-        markAsRead(
-            email.id,
-            index
-        );
-
-
-        // ---------------------------------------------
-        // SHOW VIEWER
-        // ---------------------------------------------
-
-        if (mailViewer) {
-
-            mailViewer.style.display =
-                "block";
-        }
-
-
-        // ---------------------------------------------
-        // HIDE LIST
-        // ---------------------------------------------
-
-        mailList.style.display =
-            "none";
-
-
-        // ---------------------------------------------
-        // TITLE
-        // ---------------------------------------------
-
-        if (mailViewerTitle) {
-
-            mailViewerTitle.textContent =
-                email.subject;
-        }
-
-
-        // ---------------------------------------------
-        // FROM
-        // ---------------------------------------------
-
-        if (mailViewerFrom) {
-
-            mailViewerFrom.textContent =
-                `From: ${email.sender}`;
-        }
-
-
-        // ---------------------------------------------
-        // DATE
-        // ---------------------------------------------
-
-        if (mailViewerDate) {
-
-            mailViewerDate.textContent =
-                email.date;
-        }
-
-
-        // ---------------------------------------------
-        // BODY
-        // ---------------------------------------------
-
-        if (mailViewerBody) {
-
-            mailViewerBody.textContent =
-                email.body;
-        }
-
-
-        // ---------------------------------------------
-        // ATTACHMENT
-        // ---------------------------------------------
-
-        renderAttachment(
-            email
-        );
-    }
-
-
-    // -------------------------------------------------
-    // MARK EMAIL AS READ
-    // -------------------------------------------------
-
-    function markAsRead(
-        emailId,
-        index
-    ) {
-
-        const emails =
-            getEmailData();
-
-        if (!emails.length) {
+        if (!currentEmail) {
             return;
         }
 
 
-        let target =
-            null;
+        const viewer =
+            getViewerElements();
 
 
-        // ---------------------------------------------
-        // FIND BY ID
-        // ---------------------------------------------
-
-        if (emailId) {
-
-            target =
-                emails.find(
-                    function (email) {
-
-                        return (
-                            email &&
-                            (
-                                email.id ===
-                                emailId
-                            )
-                        );
-
-                    }
-                );
-        }
-
-
-        // ---------------------------------------------
-        // FALLBACK TO INDEX
-        // ---------------------------------------------
-
-        if (!target) {
-
-            target =
-                emails[index];
-        }
-
-
-        if (target) {
-
-            target.read =
-                true;
-        }
-
-
-        // Re-render after changing
-        // the unread state.
-
-        renderInbox();
-    }
-
-
-    // -------------------------------------------------
-    // ATTACHMENT
-    // -------------------------------------------------
-
-    function renderAttachment(
-        email
-    ) {
-
-        if (!mailViewerBody) {
+        if (!viewer) {
             return;
         }
 
 
-        // Remove previous attachment.
+        const subject =
+            currentEmail.subject ||
+            currentEmail.title ||
+            "No subject";
 
-        const oldAttachment =
-            mailViewerBody.parentElement
-                ?.querySelector(
-                    ".mail-attachment"
-                );
 
-        if (oldAttachment) {
+        const sender =
+            currentEmail.from ||
+            currentEmail.sender ||
+            "Unknown sender";
 
-            oldAttachment.remove();
+
+        const date =
+            currentEmail.date ||
+            currentEmail.timestamp ||
+            currentEmail.time ||
+            "";
+
+
+        const body =
+            currentEmail.body ||
+            currentEmail.content ||
+            currentEmail.message ||
+            "";
+
+
+        if (viewer.title) {
+
+            viewer.title.textContent =
+                subject;
+
         }
 
 
-        if (!email.attachment) {
-            return;
+        if (viewer.from) {
+
+            viewer.from.textContent =
+                `From: ${sender}`;
+
         }
 
 
-        const attachment =
-            document.createElement("div");
+        if (viewer.date) {
 
-        attachment.className =
-            "mail-attachment";
+            viewer.date.textContent =
+                date
+                    ? `Date: ${formatDate(date)}`
+                    : "";
 
-
-        const label =
-            document.createElement("strong");
-
-        label.textContent =
-            "Attachment: ";
-
-
-        const file =
-            document.createElement("span");
-
-        if (
-            typeof email.attachment ===
-            "string"
-        ) {
-
-            file.textContent =
-                email.attachment;
-
-        } else {
-
-            file.textContent =
-                email.attachment.name ||
-                "Unknown file";
         }
 
 
-        attachment.appendChild(
-            label
-        );
+        if (viewer.body) {
 
-        attachment.appendChild(
-            file
-        );
+            /*
+               Use textContent rather than innerHTML
+               for email bodies so email data cannot
+               accidentally break the application UI.
+            */
 
+            viewer.body.textContent =
+                String(body);
 
-        if (
-            mailViewerBody.parentElement
-        ) {
-
-            mailViewerBody.parentElement
-                .appendChild(
-                    attachment
-                );
         }
-    }
 
 
-    // -------------------------------------------------
-    // HIDE VIEWER
-    // -------------------------------------------------
+        /*
+           Mark the email as read.
 
-    function hideViewer() {
+           We modify the in-memory object because
+           the existing data architecture appears
+           to use objects directly.
+        */
 
-        if (mailViewer) {
+        currentEmail.read =
+            true;
 
-            mailViewer.style.display =
+
+        if (mailList) {
+
+            mailList.style.display =
                 "none";
+
         }
 
-        mailList.style.display =
+
+        viewer.viewer.style.display =
             "block";
 
-        currentEmail =
-            null;
+
+        playMailSound();
+
     }
 
 
-    // -------------------------------------------------
-    // BACK TO INBOX
-    // -------------------------------------------------
+    /* =====================================================
+       BACK TO INBOX
+       ===================================================== */
 
     function backToInbox() {
 
-        if (
-            typeof playSound === "function"
-        ) {
+        currentEmail =
+            null;
 
-            playSound("click");
+
+        renderInbox();
+
+
+        playMailSound();
+
+    }
+
+
+    /* =====================================================
+       OPEN MAIL APPLICATION
+       ===================================================== */
+
+    function openMail() {
+
+        if (!mailWindow) {
+
+            console.warn(
+                "[Mail] #mailWindow not found."
+            );
+
+            return;
+
         }
 
-        hideViewer();
+
+        if (
+            typeof WindowManager !==
+                "undefined" &&
+            typeof WindowManager.open ===
+                "function"
+        ) {
+
+            WindowManager.open(
+                "mailWindow"
+            );
+
+        } else {
+
+            mailWindow.style.display =
+                "block";
+
+        }
+
+
+        renderInbox();
+
+
+        playMailSound();
+
     }
 
 
-    // -------------------------------------------------
-    // BUTTON EVENTS
-    // -------------------------------------------------
+    /* =====================================================
+       CLOSE MAIL APPLICATION
+       ===================================================== */
 
-    if (mailBackButton) {
+    function closeMail() {
 
-        mailBackButton.addEventListener(
-            "click",
-            backToInbox
+        if (
+            typeof WindowManager !==
+                "undefined" &&
+            typeof WindowManager.close ===
+                "function"
+        ) {
+
+            WindowManager.close(
+                "mailWindow"
+            );
+
+            return;
+
+        }
+
+
+        if (mailWindow) {
+
+            mailWindow.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       REFRESH
+       ===================================================== */
+
+    function refreshInbox() {
+
+        renderInbox();
+
+    }
+
+
+    /* =====================================================
+       FORMAT DATE
+       ===================================================== */
+
+    function formatDate(value) {
+
+        const date =
+            new Date(
+                value
+            );
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+
+            return String(
+                value
+            );
+
+        }
+
+
+        return date.toLocaleString();
+
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+       ===================================================== */
+
+    function escapeHtml(value) {
+
+        return String(
+            value ?? ""
+        )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
         );
+
     }
 
 
-    if (mailCloseButton) {
+    /* =====================================================
+       SOUND
+       ===================================================== */
 
-        mailCloseButton.addEventListener(
-            "click",
-            closeMail
+    function playMailSound() {
+
+        if (
+            typeof SoundSystem !==
+                "undefined" &&
+            typeof SoundSystem.mail ===
+                "function"
+        ) {
+
+            SoundSystem.mail();
+
+        }
+
+    }
+
+
+    /* =====================================================
+       INITIALIZE
+       ===================================================== */
+
+    function initialize() {
+
+        if (initialized) {
+            return;
+        }
+
+
+        if (!mailWindow) {
+
+            console.warn(
+                "[Mail] #mailWindow not found."
+            );
+
+            return;
+
+        }
+
+
+        if (!mailList) {
+
+            console.warn(
+                "[Mail] #emailList not found."
+            );
+
+            return;
+
+        }
+
+
+        createViewer();
+
+
+        renderInbox();
+
+
+        initialized = true;
+
+
+        console.log(
+            "[Mail] Initialized."
         );
+
     }
 
 
-    // -------------------------------------------------
-    // GLOBAL API
-    // -------------------------------------------------
+    /* =====================================================
+       PUBLIC API
+       ===================================================== */
 
-    window.Mail = {
+    const MailAPI = {
+
+        init:
+            initialize,
 
         open:
             openMail,
@@ -728,7 +905,7 @@
             closeMail,
 
         refresh:
-            renderInbox,
+            refreshInbox,
 
         openEmail:
             openEmail,
@@ -740,17 +917,36 @@
             function () {
 
                 return currentEmail;
+
             }
 
     };
 
 
-    // -------------------------------------------------
-    // LEGACY GLOBAL
-    // -------------------------------------------------
+    /*
+       Official API.
+    */
+
+    window.Mail =
+        MailAPI;
+
+
+    /*
+       Convenience global.
+    */
 
     window.openMail =
         openMail;
+
+
+    /* =====================================================
+       AUTOMATIC INITIALIZATION
+       ===================================================== */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initialize
+    );
 
 
 })();

@@ -20,118 +20,128 @@
         console.log("=================================");
 
 
-        // ---------------------------------------------
-        // SOUND
-        // ---------------------------------------------
+        // -------------------------------------------------
+        // SOUND SYSTEM
+        // -------------------------------------------------
 
         if (
-            typeof initializeSound === "function"
+            typeof SoundSystem !== "undefined" &&
+            typeof SoundSystem.init === "function"
         ) {
 
-            initializeSound();
+            SoundSystem.init();
+
+            console.log(
+                "[Main] Sound system initialized."
+            );
 
         } else {
 
             console.warn(
-                "Main: Sound system not found."
+                "[Main] Sound system not available."
             );
 
         }
 
 
-        // ---------------------------------------------
-        // DESKTOP
-        // ---------------------------------------------
+        // -------------------------------------------------
+        // DESKTOP SYSTEM
+        // -------------------------------------------------
 
         if (
-            typeof initializeDesktop === "function"
+            typeof Desktop !== "undefined" &&
+            typeof Desktop.init === "function"
         ) {
 
-            initializeDesktop();
+            Desktop.init();
+
+            console.log(
+                "[Main] Desktop initialized."
+            );
 
         } else {
 
             console.warn(
-                "Main: Desktop system not found."
+                "[Main] Desktop system not available."
             );
 
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // WINDOW MANAGER
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
-            typeof initializeWindowManager === "function"
+            typeof WindowManager !== "undefined" &&
+            typeof WindowManager.init === "function"
         ) {
 
-            initializeWindowManager();
+            WindowManager.init();
+
+            console.log(
+                "[Main] Window manager initialized."
+            );
 
         } else {
 
             console.warn(
-                "Main: Window manager not found."
+                "[Main] Window manager not available."
             );
 
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // TASKBAR
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
-            typeof initializeTaskbar === "function"
+            typeof Taskbar !== "undefined" &&
+            typeof Taskbar.init === "function"
         ) {
 
-            initializeTaskbar();
+            Taskbar.init();
+
+            console.log(
+                "[Main] Taskbar initialized."
+            );
 
         } else {
 
             console.warn(
-                "Main: Taskbar system not found."
+                "[Main] Taskbar system not available."
             );
 
         }
 
 
-        // ---------------------------------------------
-        // CLOCK
-        // ---------------------------------------------
-
-        if (
-            typeof startClock === "function"
-        ) {
-
-            startClock();
-
-        } else {
-
-            console.warn(
-                "Main: Clock system not found."
-            );
-
-        }
-
-
-        // ---------------------------------------------
-        // APPLICATION SYSTEMS
-        // ---------------------------------------------
+        // -------------------------------------------------
+        // APPLICATIONS
+        // -------------------------------------------------
 
         initializeApplications();
 
 
-        // ---------------------------------------------
-        // GAME SYSTEM
-        // ---------------------------------------------
+        // -------------------------------------------------
+        // GAME SYSTEMS
+        // -------------------------------------------------
 
-        initializeGame();
+        initializeGameSystems();
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
+        // SYSTEM READY
+        // -------------------------------------------------
+
+        console.log(
+            "[Main] Core systems initialized."
+        );
+
+
+        // -------------------------------------------------
         // BOOT
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         startSystemBoot();
 
@@ -145,110 +155,118 @@
     function initializeApplications() {
 
         console.log(
-            "Loading applications..."
+            "[Main] Checking applications..."
         );
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // FILE EXPLORER
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
             typeof Explorer !== "undefined"
         ) {
 
             console.log(
-                "✓ File Explorer loaded."
+                "[Main] File Explorer loaded."
             );
 
         } else {
 
             console.warn(
-                "Main: File Explorer not found."
+                "[Main] File Explorer not found."
             );
 
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // BROWSER
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
             typeof Browser !== "undefined"
         ) {
 
             console.log(
-                "✓ Browser loaded."
+                "[Main] Browser loaded."
             );
 
         } else {
 
             console.warn(
-                "Main: Browser not found."
+                "[Main] Browser not found."
             );
 
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // BROWSER HISTORY
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
+            typeof HistoryApp !== "undefined"
+        ) {
+
+            console.log(
+                "[Main] Browser History loaded."
+            );
+
+        } else if (
             typeof BrowserHistory !== "undefined"
         ) {
 
             console.log(
-                "✓ Browser History loaded."
+                "[Main] Browser History loaded."
             );
 
         } else {
 
             console.warn(
-                "Main: Browser History not found."
+                "[Main] Browser History not found."
             );
 
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // MAIL
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
             typeof Mail !== "undefined"
         ) {
 
             console.log(
-                "✓ Mail loaded."
+                "[Main] Mail loaded."
             );
 
         } else {
 
             console.warn(
-                "Main: Mail system not found."
+                "[Main] Mail system not found."
             );
 
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // NOTEPAD
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
             typeof Notepad !== "undefined"
         ) {
 
             console.log(
-                "✓ Notepad loaded."
+                "[Main] Notepad loaded."
             );
 
         } else {
 
             console.warn(
-                "Main: Notepad not found."
+                "[Main] Notepad system not found."
             );
 
         }
@@ -257,74 +275,74 @@
 
 
     // =================================================
-    // GAME INITIALIZATION
+    // GAME SYSTEM INITIALIZATION
     // =================================================
 
-    function initializeGame() {
+    function initializeGameSystems() {
 
         console.log(
-            "Loading investigation systems..."
+            "[Main] Checking investigation systems..."
         );
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // CLUES
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
             typeof Clues !== "undefined"
         ) {
 
             console.log(
-                "✓ Clue system loaded."
+                "[Main] Clue system loaded."
             );
 
         } else {
 
             console.warn(
-                "Main: Clue system not found."
+                "[Main] Clue system not found."
             );
 
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // INVESTIGATION
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
             typeof Investigation !== "undefined"
         ) {
 
             console.log(
-                "✓ Investigation system loaded."
+                "[Main] Investigation system loaded."
             );
 
         } else {
 
             console.warn(
-                "Main: Investigation system not found."
+                "[Main] Investigation system not found."
             );
 
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // PROGRESSION
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
             typeof Progression !== "undefined"
         ) {
 
             console.log(
-                "✓ Progression system loaded."
+                "[Main] Progression system loaded."
             );
 
         } else {
 
             console.warn(
-                "Main: Progression system not found."
+                "[Main] Progression system not found."
             );
 
         }
@@ -339,13 +357,13 @@
     function startSystemBoot() {
 
         console.log(
-            "Starting boot sequence..."
+            "[Main] Starting boot sequence..."
         );
 
 
-        // ---------------------------------------------
-        // PREFERRED BOOT API
-        // ---------------------------------------------
+        // -------------------------------------------------
+        // PREFERRED BOOT SYSTEM
+        // -------------------------------------------------
 
         if (
             typeof BootSystem !== "undefined" &&
@@ -355,12 +373,13 @@
             BootSystem.start();
 
             return;
+
         }
 
 
-        // ---------------------------------------------
+        // -------------------------------------------------
         // LEGACY FALLBACK
-        // ---------------------------------------------
+        // -------------------------------------------------
 
         if (
             typeof startBoot === "function"
@@ -369,15 +388,16 @@
             startBoot();
 
             return;
+
         }
 
 
-        // ---------------------------------------------
-        // BOOT NOT FOUND
-        // ---------------------------------------------
+        // -------------------------------------------------
+        // BOOT SYSTEM NOT FOUND
+        // -------------------------------------------------
 
         console.warn(
-            "Main: Boot system not found."
+            "[Main] Boot system not available."
         );
 
     }
@@ -412,7 +432,32 @@
 
 
     // =================================================
-    // DOM READY
+    // PUBLIC MAIN API
+    // =================================================
+
+    window.ProjectUntitled =
+        window.ProjectUntitled || {};
+
+
+    window.ProjectUntitled.Main = {
+
+        initialize:
+            initializeSystem,
+
+        initializeApplications:
+            initializeApplications,
+
+        initializeGame:
+            initializeGameSystems,
+
+        startBoot:
+            startSystemBoot
+
+    };
+
+
+    // =================================================
+    // START SYSTEM
     // =================================================
 
     document.addEventListener(
@@ -420,24 +465,5 @@
         initializeSystem
     );
 
-
-    // =================================================
-    // PUBLIC MAIN API
-    // =================================================
-
-    window.ProjectUntitled = {
-
-        initialize: initializeSystem,
-
-        initializeApplications:
-            initializeApplications,
-
-        initializeGame:
-            initializeGame,
-
-        startBoot:
-            startSystemBoot
-
-    };
-
 })();
+
