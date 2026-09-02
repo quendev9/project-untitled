@@ -8,9 +8,9 @@
     "use strict";
 
 
-    // =================================================
-    // STATE
-    // =================================================
+    /* =====================================================
+       STATE
+    ===================================================== */
 
     const windows = new Map();
 
@@ -19,9 +19,9 @@
     let initialized = false;
 
 
-    // =================================================
-    // INITIALIZE
-    // =================================================
+    /* =====================================================
+       INITIALIZE
+    ===================================================== */
 
     function init() {
 
@@ -31,7 +31,9 @@
 
 
         const windowElements =
-            document.querySelectorAll(".window");
+            document.querySelectorAll(
+                ".window"
+            );
 
 
         windowElements.forEach(
@@ -55,9 +57,9 @@
     }
 
 
-    // =================================================
-    // REGISTER WINDOW
-    // =================================================
+    /* =====================================================
+       REGISTER WINDOW
+    ===================================================== */
 
     function registerWindow(windowElement) {
 
@@ -75,18 +77,10 @@
             windowElement.id;
 
 
-        // ---------------------------------------------
-        // PREVENT DUPLICATE REGISTRATION
-        // ---------------------------------------------
-
         if (windows.has(id)) {
             return;
         }
 
-
-        // ---------------------------------------------
-        // WINDOW STATE
-        // ---------------------------------------------
 
         const windowData = {
 
@@ -100,7 +94,15 @@
                 false,
 
             previousState:
-                null
+                null,
+
+            /*
+               Used so a newly opened window is
+               centered only the first time.
+            */
+
+            hasInitialPosition:
+                false
 
         };
 
@@ -111,26 +113,14 @@
         );
 
 
-        // ---------------------------------------------
-        // INITIAL WINDOW STATE
-        // ---------------------------------------------
-
         windowElement.style.zIndex =
             "100";
 
-
-        // ---------------------------------------------
-        // BUTTONS
-        // ---------------------------------------------
 
         setupWindowButtons(
             windowElement
         );
 
-
-        // ---------------------------------------------
-        // FOCUS ON CLICK
-        // ---------------------------------------------
 
         windowElement.addEventListener(
             "mousedown",
@@ -144,9 +134,9 @@
     }
 
 
-    // =================================================
-    // WINDOW BUTTONS
-    // =================================================
+    /* =====================================================
+       WINDOW BUTTONS
+    ===================================================== */
 
     function setupWindowButtons(windowElement) {
 
@@ -159,96 +149,149 @@
         buttons.forEach(
             function (button) {
 
+                const id =
+                    windowElement.id;
+
+
                 let action =
-                    button.dataset.action;
+                    null;
 
 
-                // -------------------------------------
-                // SUPPORT CURRENT HTML
-                // -------------------------------------
+                /*
+                   Determine the action strictly
+                   from the button's class.
 
-                if (!action) {
+                   MINIMIZE → minimize
+                   MAXIMIZE → maximize
+                   CLOSE → close
+                */
 
-                    if (
-                        button.classList.contains(
-                            "window-close"
-                        )
-                    ) {
+                if (
+                    button.classList.contains(
+                        "window-minimize"
+                    )
+                ) {
 
-                        action = "close";
+                    action =
+                        "minimize";
 
-                    }
+                }
+                else if (
+                    button.classList.contains(
+                        "window-maximize"
+                    )
+                ) {
 
-                    else if (
-                        button.classList.contains(
-                            "window-minimize"
-                        )
-                    ) {
+                    action =
+                        "maximize";
 
-                        action = "minimize";
+                }
+                else if (
+                    button.classList.contains(
+                        "window-close"
+                    )
+                ) {
 
-                    }
-
-                    else if (
-                        button.classList.contains(
-                            "window-maximize"
-                        )
-                    ) {
-
-                        action = "maximize";
-
-                    }
+                    action =
+                        "close";
 
                 }
 
 
+                /*
+                   Unknown button.
+                */
+
                 if (!action) {
+
+                    console.warn(
+                        `[WindowManager] Unknown window button in "${id}".`
+                    );
+
                     return;
+
                 }
 
 
-                // -------------------------------------
-                // STORE ACTION
-                // -------------------------------------
+                /*
+                   Store the resolved action.
+                */
 
                 button.dataset.action =
                     action;
 
 
-                // -------------------------------------
-                // CLICK HANDLER
-                // -------------------------------------
+                /*
+                   Prevent duplicate listeners.
+                */
+
+                if (
+                    button.dataset.windowManagerBound ===
+                    "true"
+                ) {
+
+                    return;
+
+                }
+
+
+                button.dataset.windowManagerBound =
+                    "true";
+
 
                 button.addEventListener(
                     "click",
                     function (event) {
 
+                        event.preventDefault();
+
                         event.stopPropagation();
 
 
-                        const id =
-                            windowElement.id;
+                        /*
+                           MINIMIZE
+                        */
 
-
-                        if (action === "close") {
-
-                            close(id);
-
-                        }
-
-                        else if (
-                            action === "minimize"
+                        if (
+                            action ===
+                            "minimize"
                         ) {
 
                             minimize(id);
 
+                            return;
+
                         }
 
-                        else if (
-                            action === "maximize"
+
+                        /*
+                           MAXIMIZE
+                        */
+
+                        if (
+                            action ===
+                            "maximize"
                         ) {
 
                             maximize(id);
+
+                            return;
+
+                        }
+
+
+                        /*
+                           CLOSE
+                        */
+
+                        if (
+                            action ===
+                            "close"
+                        ) {
+
+                            close(id);
+
+                            return;
 
                         }
 
@@ -261,9 +304,147 @@
     }
 
 
-    // =================================================
-    // OPEN WINDOW
-    // =================================================
+    /* =====================================================
+       CENTER WINDOW
+    ===================================================== */
+
+    function centerWindow(windowData) {
+
+        if (!windowData) {
+            return;
+        }
+
+
+        const element =
+            windowData.element;
+
+
+        if (!element) {
+            return;
+        }
+
+
+        /*
+           The window must be visible before
+           offsetWidth / offsetHeight can be
+           measured correctly.
+        */
+
+        if (
+            element.style.display ===
+            "none"
+        ) {
+
+            return;
+
+        }
+
+
+        const width =
+            element.offsetWidth;
+
+
+        const height =
+            element.offsetHeight;
+
+
+        if (
+            width <= 0 ||
+            height <= 0
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+           Find the taskbar height.
+
+           If the taskbar cannot be found,
+           use the normal 38px height.
+        */
+
+        const taskbar =
+            document.getElementById(
+                "taskbar"
+            );
+
+
+        const taskbarHeight =
+            taskbar
+                ? taskbar.offsetHeight
+                : 38;
+
+
+        const availableWidth =
+            window.innerWidth;
+
+
+        const availableHeight =
+            window.innerHeight -
+            taskbarHeight;
+
+
+        /*
+           Calculate centered position.
+        */
+
+        let left =
+            (availableWidth - width) / 2;
+
+
+        let top =
+            (availableHeight - height) / 2;
+
+
+        /*
+           Prevent the window from going
+           outside the visible screen.
+        */
+
+        left =
+            Math.max(
+                0,
+                Math.min(
+                    left,
+                    availableWidth - width
+                )
+            );
+
+
+        top =
+            Math.max(
+                0,
+                Math.min(
+                    top,
+                    availableHeight - height
+                )
+            );
+
+
+        /*
+           Apply the position.
+        */
+
+        element.style.left =
+            `${left}px`;
+
+        element.style.top =
+            `${top}px`;
+
+        element.style.right =
+            "auto";
+
+        element.style.bottom =
+            "auto";
+
+    }
+
+
+    /* =====================================================
+       OPEN
+    ===================================================== */
 
     function open(id) {
 
@@ -286,12 +467,40 @@
             windowData.element;
 
 
+        /*
+           A minimized window is no longer
+           considered minimized when opened.
+        */
+
         windowData.minimized =
             false;
 
 
         element.style.display =
             "block";
+
+
+        /*
+           Center the window only the first
+           time it is opened.
+
+           After that, its position is preserved.
+        */
+
+        if (
+            !windowData.hasInitialPosition &&
+            !windowData.maximized
+        ) {
+
+            centerWindow(
+                windowData
+            );
+
+
+            windowData.hasInitialPosition =
+                true;
+
+        }
 
 
         focus(id);
@@ -307,9 +516,9 @@
     }
 
 
-    // =================================================
-    // CLOSE WINDOW
-    // =================================================
+    /* =====================================================
+       CLOSE
+    ===================================================== */
 
     function close(id) {
 
@@ -330,16 +539,26 @@
             "none";
 
 
+        /*
+           Closed ≠ minimized.
+
+           This is important because the
+           taskbar should remove the button
+           completely when a window closes.
+        */
+
         windowData.minimized =
             false;
 
 
-        // ---------------------------------------------
-        // If closing a maximized window, restore its
-        // internal state for the next opening.
-        // ---------------------------------------------
+        /*
+           If maximized, restore its original
+           dimensions before closing.
+        */
 
-        if (windowData.maximized) {
+        if (
+            windowData.maximized
+        ) {
 
             restoreSize(id);
 
@@ -348,6 +567,7 @@
 
         windowData.maximized =
             false;
+
 
         windowData.previousState =
             null;
@@ -363,9 +583,9 @@
     }
 
 
-    // =================================================
-    // MINIMIZE WINDOW
-    // =================================================
+    /* =====================================================
+       MINIMIZE
+    ===================================================== */
 
     function minimize(id) {
 
@@ -378,9 +598,23 @@
         }
 
 
+        /*
+           Hide the actual window.
+        */
+
         windowData.element.style.display =
             "none";
 
+
+        /*
+           IMPORTANT:
+
+           minimized = true
+
+           This tells the Taskbar that the
+           window is still open and should
+           remain represented there.
+        */
 
         windowData.minimized =
             true;
@@ -396,9 +630,9 @@
     }
 
 
-    // =================================================
-    // RESTORE WINDOW
-    // =================================================
+    /* =====================================================
+       RESTORE
+    ===================================================== */
 
     function restore(id) {
 
@@ -432,9 +666,9 @@
     }
 
 
-    // =================================================
-    // MAXIMIZE WINDOW
-    // =================================================
+    /* =====================================================
+       MAXIMIZE
+    ===================================================== */
 
     function maximize(id) {
 
@@ -451,11 +685,14 @@
             windowData.element;
 
 
-        // ---------------------------------------------
-        // If already maximized, restore size.
-        // ---------------------------------------------
+        /*
+           If already maximized,
+           restore instead.
+        */
 
-        if (windowData.maximized) {
+        if (
+            windowData.maximized
+        ) {
 
             restoreSize(id);
 
@@ -464,9 +701,10 @@
         }
 
 
-        // ---------------------------------------------
-        // SAVE CURRENT STATE
-        // ---------------------------------------------
+        /*
+           Save the current window state
+           so it can be restored later.
+        */
 
         windowData.previousState = {
 
@@ -491,9 +729,10 @@
         };
 
 
-        // ---------------------------------------------
-        // MAXIMIZED POSITION
-        // ---------------------------------------------
+        /*
+           Fill the desktop while leaving
+           room for the taskbar.
+        */
 
         element.style.width =
             "100vw";
@@ -535,9 +774,9 @@
     }
 
 
-    // =================================================
-    // RESTORE SIZE
-    // =================================================
+    /* =====================================================
+       RESTORE SIZE
+    ===================================================== */
 
     function restoreSize(id) {
 
@@ -602,9 +841,9 @@
     }
 
 
-    // =================================================
-    // FOCUS WINDOW
-    // =================================================
+    /* =====================================================
+       FOCUS
+    ===================================================== */
 
     function focus(id) {
 
@@ -624,6 +863,11 @@
             highestZIndex;
 
 
+        /*
+           Focusing a window means it is
+           no longer minimized.
+        */
+
         windowData.minimized =
             false;
 
@@ -633,9 +877,9 @@
     }
 
 
-    // =================================================
-    // TOGGLE WINDOW
-    // =================================================
+    /* =====================================================
+       TOGGLE
+    ===================================================== */
 
     function toggle(id) {
 
@@ -657,33 +901,45 @@
             "none";
 
 
+        /*
+           Hidden + minimized
+           → restore
+        */
+
         if (!visible) {
 
-            if (windowData.minimized) {
+            if (
+                windowData.minimized
+            ) {
 
                 restore(id);
 
             }
-
             else {
 
                 open(id);
 
             }
 
+
             return;
 
         }
 
+
+        /*
+           Visible
+           → minimize
+        */
 
         minimize(id);
 
     }
 
 
-    // =================================================
-    // CHECK IF OPEN
-    // =================================================
+    /* =====================================================
+       IS OPEN
+    ===================================================== */
 
     function isOpen(id) {
 
@@ -704,9 +960,9 @@
     }
 
 
-    // =================================================
-    // GET WINDOW ELEMENT
-    // =================================================
+    /* =====================================================
+       GET WINDOW ELEMENT
+    ===================================================== */
 
     function get(id) {
 
@@ -724,9 +980,9 @@
     }
 
 
-    // =================================================
-    // GET WINDOW STATE
-    // =================================================
+    /* =====================================================
+       GET STATE
+    ===================================================== */
 
     function getState(id) {
 
@@ -761,9 +1017,9 @@
     }
 
 
-    // =================================================
-    // GET ALL WINDOWS
-    // =================================================
+    /* =====================================================
+       GET ALL
+    ===================================================== */
 
     function getAll() {
 
@@ -793,15 +1049,17 @@
     }
 
 
-    // =================================================
-    // UPDATE TASKBAR
-    // =================================================
+    /* =====================================================
+       UPDATE TASKBAR
+    ===================================================== */
 
     function updateTaskbar() {
 
         if (
-            typeof Taskbar !== "undefined" &&
-            typeof Taskbar.update === "function"
+            typeof Taskbar !==
+                "undefined" &&
+            typeof Taskbar.update ===
+                "function"
         ) {
 
             Taskbar.update();
@@ -811,9 +1069,9 @@
     }
 
 
-    // =================================================
-    // CLOSE ALL WINDOWS
-    // =================================================
+    /* =====================================================
+       CLOSE ALL
+    ===================================================== */
 
     function closeAll() {
 
@@ -849,9 +1107,9 @@
     }
 
 
-    // =================================================
-    // PUBLIC API
-    // =================================================
+    /* =====================================================
+       PUBLIC API
+    ===================================================== */
 
     const WindowManager = {
 
@@ -895,17 +1153,13 @@
     };
 
 
-    // =================================================
-    // GLOBAL API
-    // =================================================
+    /* =====================================================
+       GLOBAL API
+    ===================================================== */
 
     window.WindowManager =
         WindowManager;
 
-
-    // =================================================
-    // MAIN.JS COMPATIBILITY
-    // =================================================
 
     window.initializeWindowManager =
         function () {
